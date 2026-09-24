@@ -1,0 +1,85 @@
+{
+    "diagnostics_summary": {
+        "initial_mp_candidate_rows": 132336,
+        "training_formulas_excluded": 42473,
+        "total_unseen_materials_predicted": 72105,
+        "predicted_phases_distribution": {
+            "FM": 5830,
+            "AFM": 21668,
+            "NM": 44607
+        },
+        "mean_calibrated_probabilities": {
+            "P_FM": 0.10952939506267431,
+            "P_AFM": 0.2832728669695272,
+            "P_NM": 0.6071977379677984
+        },
+        "confidence": {
+            "high_confidence_threshold": 0.8,
+            "high_confidence_count": 56438,
+            "high_confidence_fraction": 0.7827196449622079,
+            "boundary_case_count": 15667,
+            "boundary_case_fraction": 0.2172803550377921,
+            "mean_max_probability": 0.8875068586524842,
+            "mean_probability_margin": 0.7945468717657413,
+            "mean_phase_entropy": 0.28434193886168874
+        },
+        "temperature_ranges": {
+            "TC_if_FM_min_max_mean": [
+                6.597494159779012,
+                1208.3273368611792,
+                176.27555926865116
+            ],
+            "TN_if_AFM_min_max_mean": [
+                6.830628283268006,
+                584.1557150758958,
+                74.12593364393884
+            ],
+            "expected_ordering_temperature_mean": 43.643544698686235
+        },
+        "physical_target_ranges": {
+            "K1_MJ_m3_min_max_mean": [
+                -8.987909809339968e-05,
+                0.7331043796280634,
+                0.00044814309716418893
+            ],
+            "Hc_kA_m_min_max_mean": [
+                0.0,
+                1207.051759605329,
+                23.106660050730305
+            ],
+            "Ms_Tesla_min_max_mean": [
+                0.0,
+                2.5,
+                0.07820156733939944
+            ],
+            "BH_max_kJ_m3_min_max_mean": [
+                0.0,
+                230.04038331508218,
+                2.613123230552391
+            ],
+            "theta_p_K_min_max_mean": [
+                -401.7526454085987,
+                850.0909575842882,
+                -11.56599920085608
+            ]
+        },
+        "high_confidence_counts": {
+            "FM_candidates_PFM_080_TC_gt_300K": 1160,
+            "AFM_candidates_PAFM_080_TN_gt_100K": 2155,
+            "High_Performance_Permanent_Magnets": 750,
+            "Soft_Magnetic_Materials": 43,
+            "Frustrated_Magnetic_Candidates": 1187
+        }
+    },
+    "outputs": {
+        "full_predictions": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/magnetic_predictions_full.csv",
+        "high_confidence_predictions_Pmax_080": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/high_confidence_predictions_Pmax_080.csv",
+        "uncertain_predictions": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/uncertain_predictions.csv",
+        "high_confidence_FM_candidates": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/high_confidence_FM_candidates.csv",
+        "high_confidence_AFM_candidates": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/high_confidence_AFM_candidates.csv",
+        "top_soft_ordering_temperature_candidates": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/top_soft_ordering_temperature_candidates.csv",
+        "high_performance_permanent_magnets": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/high_performance_permanent_magnets.csv",
+        "soft_magnetic_materials": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/soft_magnetic_materials.csv",
+        "frustrated_magnetic_candidates": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/post_processing/frustrated_magnetic_candidates.csv"
+    }
+}

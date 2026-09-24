@@ -1,0 +1,56 @@
+{
+  "phase_classification": {
+    "tabular": {
+      "accuracy": 0.9476666666666667,
+      "macro_f1": 0.9388417578123018
+    },
+    "transformer": {
+      "accuracy": 0.8273333333333334,
+      "macro_f1": 0.8163243132709356
+    },
+    "hybrid_fused": {
+      "accuracy": 0.9443333333333334,
+      "macro_f1": 0.9354025345139806
+    }
+  },
+  "curie_temperature_tc": {
+    "tabular": {
+      "r2": 0.966935137980042,
+      "mae": 31.36494361522617,
+      "rmse": 48.98295559715345
+    },
+    "transformer": {
+      "r2": 0.8153224541993442,
+      "mae": 69.58792948101016,
+      "rmse": 115.76270772383594
+    },
+    "hybrid_fused": {
+      "r2": 0.9588688314379232,
+      "mae": 32.08364531895502,
+      "rmse": 54.63200675008783
+    }
+  },
+  "neel_temperature_tn": {
+    "tabular": {
+      "r2": 0.905131392846024,
+      "mae": 23.143012639376792,
+      "rmse": 52.63215670221612
+    },
+    "transformer": {
+      "r2": 0.7500113134576716,
+      "mae": 41.113787304300445,
+      "rmse": 85.43780486568326
+    },
+    "hybrid_fused": {
+      "r2": 0.9051072210650746,
+      "mae": 22.947886250044885,
+      "rmse": 52.638861406615696
+    }
+  },
+  "insights": {
+    "classification_gain": "Hybrid accuracy = 94.43% vs Tabular 94.77%",
+    "curie_tc_mae_reduction": "-0.72 K lower MAE in hybrid fusion",
+    "zero_descriptor_capability": "MagFormer requires 0s feature extraction time (evaluates raw chemical formula strings)",
+    "inductive_bias_synergy": "Tabular models excel on crystal-field descriptors while MagFormer captures non-local composition stoichiometry"
+  }
+}

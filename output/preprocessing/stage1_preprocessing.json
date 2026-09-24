@@ -1,0 +1,142 @@
+{
+    "stage": "Stage 1: Preprocessing and Materials Project Mapping",
+    "description": "Standardizes formulas using pymatgen and performs confidence-scored crystallographic left-joins with symmetry information.",
+    "master_preprocessed_csv": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/preprocessing/preprocessed_master.csv",
+    "mapping_quality": {
+        "classification": {
+            "total_records": 35037,
+            "parsing_statistics": {
+                "exact": {
+                    "count": 33666,
+                    "percentage": 96.08699374946485
+                },
+                "cleaned": {
+                    "count": 1371,
+                    "percentage": 3.9130062505351484
+                }
+            },
+            "mapping_confidence_statistics": {
+                "unmatched": {
+                    "count": 19410,
+                    "percentage": 55.398578645431975
+                },
+                "medium/low": {
+                    "count": 15627,
+                    "percentage": 44.601421354568025
+                }
+            }
+        },
+        "curie": {
+            "total_records": 15518,
+            "parsing_statistics": {
+                "exact": {
+                    "count": 14844,
+                    "percentage": 95.65665678566826
+                },
+                "cleaned": {
+                    "count": 674,
+                    "percentage": 4.343343214331743
+                }
+            },
+            "mapping_confidence_statistics": {
+                "unmatched": {
+                    "count": 13348,
+                    "percentage": 86.01623920608326
+                },
+                "medium/low": {
+                    "count": 2170,
+                    "percentage": 13.98376079391674
+                }
+            }
+        },
+        "neel": {
+            "total_records": 7734,
+            "parsing_statistics": {
+                "exact": {
+                    "count": 7311,
+                    "percentage": 94.53064391000777
+                },
+                "cleaned": {
+                    "count": 423,
+                    "percentage": 5.469356089992242
+                }
+            },
+            "mapping_confidence_statistics": {
+                "unmatched": {
+                    "count": 4752,
+                    "percentage": 61.44297905352987
+                },
+                "medium/low": {
+                    "count": 2982,
+                    "percentage": 38.55702094647013
+                }
+            }
+        },
+        "anisotropy": {
+            "total_records": 15176,
+            "parsing_statistics": {
+                "exact": {
+                    "count": 7439,
+                    "percentage": 49.01818661043753
+                },
+                "failed": {
+                    "count": 5235,
+                    "percentage": 34.49525566684238
+                },
+                "cleaned": {
+                    "count": 2502,
+                    "percentage": 16.486557722720086
+                }
+            },
+            "mapping_confidence_statistics": {
+                "unmatched": {
+                    "count": 13409,
+                    "percentage": 88.35661570901424
+                },
+                "medium/low": {
+                    "count": 741,
+                    "percentage": 4.882709541381128
+                },
+                "high": {
+                    "count": 619,
+                    "percentage": 4.0788086452293095
+                },
+                "medium": {
+                    "count": 407,
+                    "percentage": 2.681866104375329
+                }
+            }
+        },
+        "curie_weiss": {
+            "total_records": 6975,
+            "parsing_statistics": {
+                "exact": {
+                    "count": 5631,
+                    "percentage": 80.73118279569891
+                },
+                "cleaned": {
+                    "count": 1189,
+                    "percentage": 17.04659498207885
+                },
+                "failed": {
+                    "count": 155,
+                    "percentage": 2.2222222222222223
+                }
+            },
+            "mapping_confidence_statistics": {
+                "unmatched": {
+                    "count": 4531,
+                    "percentage": 64.9605734767025
+                },
+                "medium/low": {
+                    "count": 2444,
+                    "percentage": 35.03942652329749
+                }
+            }
+        }
+    },
+    "transparency_outputs": {
+        "best_matches_csv": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/preprocessing/nemad_mp_best_matches.csv",
+        "mapping_candidates_csv": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/preprocessing/nemad_mp_mapping_candidates.csv"
+    }
+}

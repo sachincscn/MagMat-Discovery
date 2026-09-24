@@ -1,0 +1,21 @@
+{
+  "conformal_coverage": {
+    "curie_tc": {
+      "empirical_coverage": 0.9823,
+      "nominal_level": 0.9,
+      "coverage_error": 0.0823,
+      "mean_interval_width": 297.28,
+      "median_interval_width": 297.28,
+      "valid_samples": 3000
+    },
+    "neel_tn": {
+      "empirical_coverage": 0.9513,
+      "nominal_level": 0.9,
+      "coverage_error": 0.0513,
+      "mean_interval_width": 194.05,
+      "median_interval_width": 194.05,
+      "valid_samples": 3000
+    }
+  },
+  "stratified_metrics": {}
+}

@@ -1,0 +1,454 @@
+{
+    "stage": "Stage 3: Physics-Aware Multi-Model Cross Validation",
+    "description": "Group-kfold cross validation (5 folds, grouped on reduced_formula) with fold-isolated sifting and standard scaling across 3 evaluated representation tier(s). Ensemble blend weights are fitted on inner out-of-fold predictions; the cross-target physics cascade is out-of-fold.",
+    "run_config": {
+        "mode": "final_manuscript",
+        "n_splits": 5,
+        "random_state": 42,
+        "inner_splits": 3,
+        "run_ablation": true,
+        "ablation_versions": [
+            "F1",
+            "F3",
+            "F5"
+        ],
+        "cascade_out_of_fold": true,
+        "report_per_fold": true,
+        "bootstrap_iterations": 1000,
+        "force_feature_reselect": true,
+        "use_structure_features": true,
+        "variance_threshold": 1e-05,
+        "correlation_threshold": 0.95,
+        "force_gnn_retrain": false,
+        "heavy_plots": true,
+        "extra": {},
+        "gnn_epochs": 40,
+        "n_estimators": 600,
+        "n_estimators_cv": 400,
+        "n_ensemble_members": 8,
+        "is_publishable": true
+    },
+    "results": {
+        "classification_metrics": {
+            "performance_accuracy": 0.9124554144671138,
+            "generalization_accuracy": 0.9167641603652447,
+            "performance_macro_f1": 0.9008440612295984,
+            "generalization_macro_f1": 0.9055539848287233,
+            "performance_afm_f1": 0.8130479102956167,
+            "generalization_afm_f1": 0.8210540650960098,
+            "baseline_generalization_afm_precision": 0.7393430290872618,
+            "optimized_generalization_afm_precision": 0.7914150695720662,
+            "baseline_generalization_afm_recall": 0.8343237125070742,
+            "optimized_generalization_afm_recall": 0.8529994340690435,
+            "optimized_threshold_parameters": null,
+            "verifier_tau_afm": 0.3,
+            "verifier_tau_verifier": 0.3,
+            "class_breakdown_f1": {
+                "FM": 0.9174473780265239,
+                "AFM": 0.8210540650960098,
+                "NM": 0.9781605113636364
+            },
+            "top_predictive_features": {
+                "Num_Atoms": 1062.023128920483,
+                "minimum EN difference": 945.0058019001028,
+                "MagpieData range MeltingT": 932.2562974665071,
+                "MagpieData avg_dev NUnfilled": 931.2666185804881,
+                "MagpieData avg_dev SpaceGroupNumber": 873.7563068655863,
+                "Total_Electrons": 851.0228612043302,
+                "MagpieData avg_dev NValence": 810.2557549036719,
+                "MagpieData mean NUnfilled": 792.5109111294332,
+                "MagpieData avg_dev MendeleevNumber": 787.0066643116943,
+                "Average_Weight": 767.0198624786249
+            },
+            "confidence_rejection_table": [
+                {
+                    "Threshold": "No reject",
+                    "Coverage": "100.0%",
+                    "Accuracy": "0.9151",
+                    "AFM Precision": "0.7727",
+                    "AFM F1": "0.8171",
+                    "N Uncertain": 0
+                },
+                {
+                    "Threshold": "0.50",
+                    "Coverage": "99.7%",
+                    "Accuracy": "0.9166",
+                    "AFM Precision": "0.7737",
+                    "AFM F1": "0.8184",
+                    "N Uncertain": 97
+                },
+                {
+                    "Threshold": "0.60",
+                    "Coverage": "97.8%",
+                    "Accuracy": "0.9246",
+                    "AFM Precision": "0.7894",
+                    "AFM F1": "0.8333",
+                    "N Uncertain": 758
+                },
+                {
+                    "Threshold": "0.70",
+                    "Coverage": "93.5%",
+                    "Accuracy": "0.9379",
+                    "AFM Precision": "0.8178",
+                    "AFM F1": "0.8585",
+                    "N Uncertain": 2288
+                },
+                {
+                    "Threshold": "0.80",
+                    "Coverage": "87.5%",
+                    "Accuracy": "0.9538",
+                    "AFM Precision": "0.8534",
+                    "AFM F1": "0.8908",
+                    "N Uncertain": 4376
+                },
+                {
+                    "Threshold": "0.90",
+                    "Coverage": "75.4%",
+                    "Accuracy": "0.9718",
+                    "AFM Precision": "0.9015",
+                    "AFM F1": "0.9291",
+                    "N Uncertain": 8624
+                }
+            ],
+            "winner_ensemble_type": "specialist_corrected"
+        },
+        "classification_ablation": {
+            "F1": {
+                "performance_accuracy": 0.8893422742188615,
+                "generalization_accuracy": 0.8983592523897845,
+                "performance_macro_f1": 0.8758317446808038,
+                "generalization_macro_f1": 0.8856792472322335,
+                "performance_afm_f1": 0.7766594303006381,
+                "generalization_afm_f1": 0.7926042900381629,
+                "performance_afm_precision": 0.7258084347719169,
+                "performance_afm_recall": 0.8351726089417091,
+                "generalization_afm_precision": 0.7408364083640836,
+                "generalization_afm_recall": 0.8521505376344086
+            },
+            "F3": {
+                "performance_accuracy": 0.8925666999571978,
+                "generalization_accuracy": 0.9001569410757597,
+                "performance_macro_f1": 0.878795226740621,
+                "generalization_macro_f1": 0.8872676553859598,
+                "performance_afm_f1": 0.7803525450584274,
+                "generalization_afm_f1": 0.7953278470931776,
+                "performance_afm_precision": 0.7315261789825473,
+                "performance_afm_recall": 0.8361629881154499,
+                "generalization_afm_precision": 0.749,
+                "generalization_afm_recall": 0.8477645727221279
+            },
+            "F5": {
+                "performance_accuracy": 0.8905978028249394,
+                "generalization_accuracy": 0.8966471679269511,
+                "performance_macro_f1": 0.8759714985392043,
+                "generalization_macro_f1": 0.8823340370677505,
+                "performance_afm_f1": 0.7737371065855594,
+                "generalization_afm_f1": 0.7839670300452007,
+                "performance_afm_precision": 0.7262909632571996,
+                "performance_afm_recall": 0.827815506508206,
+                "generalization_afm_precision": 0.7393430290872618,
+                "generalization_afm_recall": 0.8343237125070742
+            },
+            "F2": {
+                "status": "not_evaluated",
+                "reason": "run_ablation=False; no back-fill from F5"
+            },
+            "F4": {
+                "status": "not_evaluated",
+                "reason": "run_ablation=False; no back-fill from F5"
+            }
+        },
+        "temperature_regression": {
+            "curie_tc": {
+                "performance_r2": 0.8128868710476231,
+                "generalization_r2": 0.8128868710476231,
+                "performance_mae": 70.62952582132026,
+                "generalization_mae": 70.62952582132026,
+                "top_predictive_features": {
+                    "MagpieData mean GSmagmom": 84.26451751872509,
+                    "MagpieData avg_dev NUnfilled": 53.51498278930635,
+                    "spin_orbit_coupling_proxy": 51.03462212502086,
+                    "MagpieData mean NdUnfilled": 48.01711551456335,
+                    "exchange_competition_index": 43.01254813867251,
+                    "MagpieData mean NdValence": 42.034481882119636,
+                    "max_elemental_ordering_temp": 37.51333029057037,
+                    "mag_cation_anion_en_diff": 33.02713121389823,
+                    "strong_afm_3d_fraction": 32.50641849414558,
+                    "MagpieData mean NpUnfilled": 29.507237316324947
+                }
+            },
+            "neel_tn": {
+                "performance_r2": 0.7313491176560936,
+                "generalization_r2": 0.7313491176560936,
+                "performance_mae": 48.54482692843574,
+                "generalization_mae": 48.54482692843574,
+                "top_predictive_features": {
+                    "MagpieData avg_dev GSmagmom": 96.11913802821692,
+                    "slater_pauling_peak_distance": 64.53446666488124,
+                    "Average_Weight": 58.53325754716368,
+                    "avg_magnetic_moment": 58.07167345973229,
+                    "spin_orbit_coupling_proxy": 44.516775448581775,
+                    "MagpieData mean NdUnfilled": 40.03519184942747,
+                    "mean_field_spin_factor": 38.518408197886345,
+                    "elemental_fm_tc_prior": 37.529421095341796,
+                    "L2_norm": 24.519231623218918,
+                    "MagpieData avg_dev NsValence": 20.010851583384202
+                }
+            }
+        },
+        "curie_ablation": {
+            "F1": {
+                "performance_r2": 0.7777814309847195,
+                "generalization_r2": 0.7777814309847195,
+                "performance_mae": 82.14512953332212,
+                "generalization_mae": 82.14512953332212
+            },
+            "F3": {
+                "performance_r2": 0.8030894124639911,
+                "generalization_r2": 0.8030894124639911,
+                "performance_mae": 72.07945724304491,
+                "generalization_mae": 72.07945724304491
+            },
+            "F5": {
+                "performance_r2": 0.8128868710476231,
+                "generalization_r2": 0.8128868710476231,
+                "performance_mae": 70.62952582132026,
+                "generalization_mae": 70.62952582132026
+            },
+            "F2": {
+                "status": "not_evaluated",
+                "reason": "run_ablation=False; no back-fill from F5"
+            },
+            "F4": {
+                "status": "not_evaluated",
+                "reason": "run_ablation=False; no back-fill from F5"
+            }
+        },
+        "neel_ablation": {
+            "F1": {
+                "performance_r2": 0.7405666614319737,
+                "generalization_r2": 0.7405666614319737,
+                "performance_mae": 47.70501247818296,
+                "generalization_mae": 47.70501247818296
+            },
+            "F3": {
+                "performance_r2": 0.7380871741248374,
+                "generalization_r2": 0.7380871741248374,
+                "performance_mae": 46.88955831747686,
+                "generalization_mae": 46.88955831747686
+            },
+            "F5": {
+                "performance_r2": 0.7313491176560936,
+                "generalization_r2": 0.7313491176560936,
+                "performance_mae": 48.54482692843574,
+                "generalization_mae": 48.54482692843574
+            },
+            "F2": {
+                "status": "not_evaluated",
+                "reason": "run_ablation=False; no back-fill from F5"
+            },
+            "F4": {
+                "status": "not_evaluated",
+                "reason": "run_ablation=False; no back-fill from F5"
+            }
+        },
+        "extended_physical_targets": {
+            "anisotropy_k1": {
+                "target": "anisotropy_k1",
+                "n_samples": 2980,
+                "n_splits": 5,
+                "transform": "symlog",
+                "unit": "J/m^3",
+                "pooled_r2": 0.2877171737222056,
+                "pooled_mae": 1.6840348244485839,
+                "fold_r2": [
+                    0.317394865480642,
+                    0.20877949630994364,
+                    0.27931926763426707,
+                    0.36568071285172044,
+                    0.2724336429843782
+                ],
+                "fold_mae": [
+                    1.581767349366427,
+                    1.8244513210495656,
+                    1.6807474635071564,
+                    1.5690767545109394,
+                    1.7641312338088315
+                ],
+                "r2_ci95": [
+                    0.24750915646634333,
+                    0.32546049479940253
+                ],
+                "mae_ci95": [
+                    1.6223499035744071,
+                    1.7507706184011422
+                ],
+                "r2_mean": 0.28872159705219025,
+                "r2_std": 0.05807172837168132,
+                "mae_mean": 1.6840348244485839,
+                "mae_std": 0.11159864286307992,
+                "target_column": "clean_K1_J_m3",
+                "n_compounds": 2727,
+                "generalization_r2": 0.2877171737222056,
+                "generalization_mae": 1.6840348244485839
+            },
+            "saturation_magnetization_ms": {
+                "target": "saturation_magnetization_ms",
+                "n_samples": 7072,
+                "n_splits": 5,
+                "transform": "none",
+                "unit": "emu/g",
+                "pooled_r2": 0.5329078424596565,
+                "pooled_mae": 25.42209358748368,
+                "fold_r2": [
+                    0.5350069664639622,
+                    0.5660249043938639,
+                    0.5146223532645671,
+                    0.5205111483024315,
+                    0.5272603775201684
+                ],
+                "fold_mae": [
+                    24.292127132446335,
+                    25.312227359669663,
+                    26.287641575155963,
+                    26.08512338601314,
+                    25.134225310641675
+                ],
+                "r2_ci95": [
+                    0.5078464868011714,
+                    0.5564474178290669
+                ],
+                "mae_ci95": [
+                    24.688403197672294,
+                    26.119337245255714
+                ],
+                "r2_mean": 0.5326851499889986,
+                "r2_std": 0.020129761265545332,
+                "mae_mean": 25.422268952785355,
+                "mae_std": 0.800085089423672,
+                "target_column": "clean_Ms_emu_g",
+                "n_compounds": 6398,
+                "generalization_r2": 0.5329078424596565,
+                "generalization_mae": 25.42209358748368
+            },
+            "coercivity_hc": {
+                "target": "coercivity_hc",
+                "n_samples": 6390,
+                "n_splits": 5,
+                "transform": "log",
+                "unit": "A/m",
+                "pooled_r2": 0.5945701289604148,
+                "pooled_mae": 0.6578722482450361,
+                "fold_r2": [
+                    0.6030991702440216,
+                    0.5542656798332699,
+                    0.5925900609738968,
+                    0.5949881425883294,
+                    0.6260983966362131
+                ],
+                "fold_mae": [
+                    0.6568543311239332,
+                    0.6577222227803505,
+                    0.6756034125776101,
+                    0.6548948597472757,
+                    0.6442864149960104
+                ],
+                "r2_ci95": [
+                    0.5735753895445371,
+                    0.6144224859382003
+                ],
+                "mae_ci95": [
+                    0.6418730582703832,
+                    0.6745854904511223
+                ],
+                "r2_mean": 0.5942082900551461,
+                "r2_std": 0.025955084256048932,
+                "mae_mean": 0.657872248245036,
+                "mae_std": 0.011279323548324647,
+                "target_column": "clean_Hc_A_m",
+                "n_compounds": 5709,
+                "generalization_r2": 0.5945701289604148,
+                "generalization_mae": 0.6578722482450361
+            },
+            "energy_product_bh_max": {
+                "target": "energy_product_bh_max",
+                "n_samples": 953,
+                "n_splits": 5,
+                "transform": "log",
+                "unit": "kJ/m^3",
+                "pooled_r2": 0.46761662311542174,
+                "pooled_mae": 0.23426012734000032,
+                "fold_r2": [
+                    0.3759948005144117,
+                    0.5374200749066642,
+                    0.3932647880567425,
+                    0.43521703060912087,
+                    0.5768337003165678
+                ],
+                "fold_mae": [
+                    0.2602380915901657,
+                    0.22581120780386812,
+                    0.22890390319952209,
+                    0.22233329464418664,
+                    0.23395007198555623
+                ],
+                "r2_ci95": [
+                    0.38906901957074064,
+                    0.5376951043127688
+                ],
+                "mae_ci95": [
+                    0.21778831450780708,
+                    0.2520218871470047
+                ],
+                "r2_mean": 0.46374607888070135,
+                "r2_std": 0.08902032579538664,
+                "mae_mean": 0.23424731384465974,
+                "mae_std": 0.015143254740167188,
+                "target_column": "clean_BH_max_kJ_m3",
+                "n_compounds": 883,
+                "generalization_r2": 0.46761662311542174,
+                "generalization_mae": 0.23426012734000032
+            },
+            "curie_weiss_theta_p": {
+                "target": "curie_weiss_theta_p",
+                "n_samples": 6820,
+                "n_splits": 5,
+                "transform": "none",
+                "unit": "K",
+                "pooled_r2": 0.60750846525139,
+                "pooled_mae": 54.883742121941275,
+                "fold_r2": [
+                    0.6245950332072305,
+                    0.5755901863513662,
+                    0.6548555418309844,
+                    0.5638327101302993,
+                    0.6091434883946307
+                ],
+                "fold_mae": [
+                    55.03180644431896,
+                    56.604721472649054,
+                    54.59477612185022,
+                    53.84090757338436,
+                    54.34649899750378
+                ],
+                "r2_ci95": [
+                    0.5735277850550426,
+                    0.639605866802883
+                ],
+                "mae_ci95": [
+                    52.372340793336946,
+                    57.21191018904293
+                ],
+                "r2_mean": 0.6056033919829023,
+                "r2_std": 0.03689366937012404,
+                "mae_mean": 54.88374212194127,
+                "mae_std": 1.0539601971554275,
+                "target_column": "clean_theta_p_K",
+                "n_compounds": 6652,
+                "generalization_r2": 0.60750846525139,
+                "generalization_mae": 54.883742121941275
+            }
+        }
+    },
+    "serialized_models_pkl": "/home/sachin/My Computer/Research/Sachin_personal/IMN_gliwice/ML_pipeline/output/training/trained_models.pkl"
+}

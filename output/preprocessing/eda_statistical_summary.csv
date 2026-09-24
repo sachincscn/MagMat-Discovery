@@ -1,0 +1,7 @@
+Analysis,Feature,Test,Statistic,p-value,Effect size
+Crystallographic Affinity,crystal_system,Chi-Square Test of Independence,434.6932527873815,1.6757244613774384e-85,0.1179338959481458
+Chemical Family Driver,magnetic_3d_fraction,Kruskal-Wallis H-Test,10347.677220064594,0.0,0.29523649392342316
+Chemical Family Driver,rare_earth_fraction,Kruskal-Wallis H-Test,343.0691137541016,3.187781108515047e-75,0.00973315203909884
+Chemical Family Driver,oxygen_fraction,Kruskal-Wallis H-Test,923.4586792533814,2.975059578288374e-201,0.026295835832811525
+Chemical Family Driver,chalcogen_fraction,Kruskal-Wallis H-Test,579.0225950435288,1.8485918655065197e-126,0.016466599938460384
+Chemical Family Driver,pnictogen_fraction,Kruskal-Wallis H-Test,282.5715840171943,4.3687798388115495e-62,0.008006722904434516
