@@ -46,7 +46,9 @@ class MACEMagneticFeaturizer:
     Featurizes compositions by combining MACE-MP-0-Small equivariant calculations
     with the 93,902-structure NIST JARVIS-DFT 3D database.
     """
-    def __init__(self, cache_dir: str = 'ML_pipeline/output/featurization'):
+    def __init__(self, cache_dir: str = None):
+        if cache_dir is None:
+            cache_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'output', 'featurization')
         self.cache_dir = cache_dir
         self.cache_file = os.path.join(cache_dir, 'mace_features_cache.parquet')
         self.calc = None
@@ -213,9 +215,11 @@ class MACEMagneticFeaturizer:
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description="Precompute MACE-MP-0-Small and NIST JARVIS features.")
-    parser.add_argument('--input-csv', type=str, default='ML_pipeline/output/featurization/features_master.csv', help='Path to master features CSV')
-    parser.add_argument('--cache-dir', type=str, default='ML_pipeline/output/featurization', help='Directory to store cache')
+    ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    default_csv = os.path.join(ROOT, 'output', 'featurization', 'features_master.csv')
+    default_cache = os.path.join(ROOT, 'output', 'featurization')
+    parser.add_argument('--input-csv', type=str, default=default_csv, help='Path to master features CSV')
+    parser.add_argument('--cache-dir', type=str, default=default_cache, help='Directory to store cache')
     args = parser.parse_args()
 
     if os.path.exists(args.input_csv):

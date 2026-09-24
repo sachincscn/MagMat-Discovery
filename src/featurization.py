@@ -1177,7 +1177,7 @@ def generate_features_for_dataset(df, formula_col='reduced_formula'):
     # Initialize cache if needed
     if _MATMINER_CACHE is None:
         cache_candidates = [
-            'ML_pipeline/output/featurization/matminer_cache.csv',
+            'MagMat-Discovery/output/featurization/matminer_cache.csv',
             'output/featurization/matminer_cache.csv'
         ]
         cache_path = None

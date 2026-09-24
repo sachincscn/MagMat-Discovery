@@ -1,4 +1,4 @@
-"""Cached data access for MagMat Discovery. All paths resolve to ML_pipeline/."""
+"""Cached data access for MagMat Discovery. All paths resolve to MagMat-Discovery/."""
 
 import json
 import math

@@ -107,7 +107,8 @@ def evaluate_target(target_name, df_feat, feature_groups):
 
 def main():
     import json
-    input_dir = 'ML_pipeline/output/featurization'
+    ROOT = os.path.dirname(os.path.abspath(__file__))
+    input_dir = os.path.join(ROOT, 'output', 'featurization')
     print("Loading features_master.csv and feature_groups.json...")
     df_feat = pd.read_csv(os.path.join(input_dir, 'features_master.csv'), low_memory=False)
     with open(os.path.join(input_dir, 'feature_groups.json')) as f:

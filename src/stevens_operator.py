@@ -117,7 +117,10 @@ def compute_stevens_features(df_input):
     return res_df
 
 if __name__ == '__main__':
-    df_m = pd.read_csv('ML_pipeline/output/featurization/features_master.csv', low_memory=False)
+    ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    feat_csv = os.path.join(ROOT, 'output', 'featurization', 'features_master.csv')
+    fg_json = os.path.join(ROOT, 'output', 'featurization', 'feature_groups.json')
+    df_m = pd.read_csv(feat_csv, low_memory=False)
     feat_df = compute_stevens_features(df_m)
     print("Computed Stevens features shape:", feat_df.shape)
     print(feat_df.describe().T[['mean', 'std', 'min', 'max']])
@@ -126,17 +129,17 @@ if __name__ == '__main__':
     for col in feat_df.columns:
         df_m[col] = feat_df[col].values
         
-    df_m.to_csv('ML_pipeline/output/featurization/features_master.csv', index=False)
+    df_m.to_csv(feat_csv, index=False)
     print("Successfully attached Stevens features to features_master.csv!")
     
     # Update feature_groups.json
     import json
-    with open('ML_pipeline/output/featurization/feature_groups.json', 'r') as f:
+    with open(fg_json, 'r') as f:
         fg = json.load(f)
     if 'anisotropy_and_soc' in fg:
         for c in feat_df.columns:
             if c not in fg['anisotropy_and_soc']:
                 fg['anisotropy_and_soc'].append(c)
-    with open('ML_pipeline/output/featurization/feature_groups.json', 'w') as f:
+    with open(fg_json, 'w') as f:
         json.dump(fg, f, indent=4)
     print("Updated feature_groups.json with Stevens operator features!")

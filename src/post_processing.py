@@ -397,7 +397,7 @@ def run_magnetic_interpretation(output_dir='output/post_processing', training_di
 
     mp_alloys_path = 'Dataset/mp_alloys_point_groups.csv'
     if not os.path.exists(mp_alloys_path):
-        mp_alloys_path = 'ML_pipeline/Dataset/mp_alloys_point_groups.csv'
+        mp_alloys_path = 'MagMat-Discovery/Dataset/mp_alloys_point_groups.csv'
     if not os.path.exists(mp_alloys_path):
         print(f"Error: {mp_alloys_path} not found. Skipping interpretation.")
         return None

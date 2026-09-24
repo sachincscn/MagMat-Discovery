@@ -108,8 +108,9 @@ def evaluate_target(target_name, df_feat, feature_groups, use_pinn=True):
     return n_samples, r2_cv, mae_cv
 
 def main():
-    feat_path = 'ML_pipeline/output/featurization/features_master.csv'
-    groups_path = 'ML_pipeline/output/featurization/feature_groups.json'
+    ROOT = os.path.dirname(os.path.abspath(__file__))
+    feat_path = os.path.join(ROOT, 'output', 'featurization', 'features_master.csv')
+    groups_path = os.path.join(ROOT, 'output', 'featurization', 'feature_groups.json')
     
     print("Loading features_master.csv...", flush=True)
     df_feat = pd.read_csv(feat_path, low_memory=False)

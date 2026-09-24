@@ -17,7 +17,7 @@ import sys
 import time
 import argparse
 
-# Ensure ML_pipeline root is in sys.path and resolve directories
+# Ensure MagMat-Discovery root is in sys.path and resolve directories
 PIPELINE_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PIPELINE_ROOT not in sys.path:
     sys.path.insert(0, PIPELINE_ROOT)
@@ -76,13 +76,13 @@ def main():
         '--output-dir',
         type=str,
         default=os.path.join(PIPELINE_ROOT, 'output'),
-        help="Base output directory (default: ML_pipeline/output)"
+        help="Base output directory (default: MagMat-Discovery/output)"
     )
     parser.add_argument(
         '--plots-dir',
         type=str,
         default=os.path.join(PIPELINE_ROOT, 'plots'),
-        help="Directory to save generated figures (default: ML_pipeline/plots)"
+        help="Directory to save generated figures (default: MagMat-Discovery/plots)"
     )
 
     args = parser.parse_args()
