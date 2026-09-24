@@ -210,127 +210,114 @@ Figure~\ref{fig:methodology_flowchart} illustrates the overall architecture of M
 \begin{figure}[!t]
 \centering
 \begin{tikzpicture}[
-    scale=0.74, every node/.style={transform shape},
+    scale=0.86, every node/.style={transform shape},
     >=Stealth,
     card/.style={
         rectangle, rounded corners=6pt,
-        draw=#1!85, fill=#1!7,
-        thick, inner sep=6pt, align=center,
+        draw=#1!85, fill=#1!6,
+        thick, inner sep=7pt, align=center,
         font=\small\sffamily,
-        drop shadow={shadow xshift=1.2pt, shadow yshift=-1.2pt, opacity=0.18}
+        drop shadow={shadow xshift=1.2pt, shadow yshift=-1.2pt, opacity=0.15}
     },
     groupbox/.style={
         rectangle, rounded corners=8pt,
-        draw=#1!60, fill=#1!3,
+        draw=#1!60, fill=#1!2,
         dashed, line width=0.8pt,
-        inner sep=7pt
+        inner sep=6pt
     },
     grouplabel/.style={
         font=\scriptsize\sffamily\bfseries\color{#1},
         fill=white, rounded corners=3pt, draw=#1!60, thin, inner sep=2.5pt
     },
-    arrow/.style={->, thick, draw=darkslate!85, rounded corners=3pt},
-    darrow/.style={->, thick, dashed, draw=#1!85, rounded corners=3pt}
+    arrow/.style={->, thick, draw=darkslate!80, rounded corners=3pt},
+    darrow/.style={->, thick, dashed, draw=#1!80, rounded corners=3pt}
 ]
 
-% --- LEVEL 1: EXTERNAL FOUNDATIONS & DATABASES ---
-\node[card=navyblue, text width=7.4cm] (dbs) at (-3.9, 0) {
-    \textbf{\large\color{navyblue} Curated Databases}\\[0.10cm]
-    \textbf{NEMAD Database} (Nat. Commun. 2025):\\
-    51,394 Curated Experimental Records\\
-    ($T_C, T_N, M_s, H_c, K_1, (BH)_{\max}$, Magnetic Phase)\\[0.10cm]
-    \textbf{Materials Project (U.S. DOE)}:\\
-    DFT Symmetries (Space Groups 1--230),\\
-    Point Groups, Crystal Systems \& Density
+% ==============================================================================
+% LEVEL 1: EXTERNAL FOUNDATIONS & DATABASES (2 CARDS)
+% ==============================================================================
+\node[card=navyblue, text width=7.1cm, minimum height=1.45cm] (dbs) at (-3.85, 0) {
+    \textbf{\large\color{navyblue} Curated Databases}\\[0.06cm]
+    \textbf{NEMAD}: 51,394 Experimental Records\\[1pt]
+    \textbf{Materials Project}: Symmetries \& Density
 };
 
-\node[card=accentpurple, text width=7.4cm] (foundations) at (3.9, 0) {
-    \textbf{\large\color{accentpurple} Pretrained Foundation Models}\\[0.10cm]
-    \textbf{MACE-MP-0 Foundation GNN} (NeurIPS 2022):\\
-    Trained on DOE Materials Project Trajectories\\
-    (Equivariant cluster expansion \& stress tensors)\\[0.10cm]
-    \textbf{DAO Crystal Foundation Engine} (Nat. Commun. 2026):\\
-    \textbf{DAO-G}: 3D Periodic Crystal Synthesis\\
-    \textbf{DAO-P}: Thermodynamic $E_{\text{hull}}$ Convex Hull Stability
+\node[card=accentpurple, text width=7.1cm, minimum height=1.45cm] (foundations) at (3.85, 0) {
+    \textbf{\large\color{accentpurple} Pretrained Foundations}\\[0.06cm]
+    \textbf{MACE-MP-0}: Equivariant Force-Field Priors\\[1pt]
+    \textbf{DAO Engine}: Structure Synthesis \& $E_{\text{hull}}$
 };
 
 \begin{scope}[on background layer]
     \node[groupbox=navyblue, fit=(dbs) (foundations)] (box1) {};
-    \node[grouplabel=navyblue, above=1pt of box1.north] {EXTERNAL FOUNDATION MODELS \& CURATED DATABASES (DOE / NEMAD / MACE / DAO)};
+    \node[grouplabel=navyblue, above=1pt of box1.north] {EXTERNAL DATA \& FOUNDATION MODELS (DOE / NEMAD / MACE / DAO)};
 \end{scope}
 
-% --- LEVEL 2: STAGE 1 CLEANING & GROUP PARTITIONING ---
-\node[card=darkslate, text width=15.6cm, below=0.65cm of box1] (prep) {
-    \textbf{\large\color{navyblue} Stage 1: Data Sanitation \& Grouped Cross-Validation Partitioning}\\[0.08cm]
-    Chemical Formula Canonicalization (\texttt{pymatgen}) $\cdot$ Logarithmic Scaling for Wide-Span Targets\\
-    \textbf{5-Fold \texttt{GroupKFold} by \texttt{reduced\_formula}} (Strict Polymorph Isolation \& Target Leakage Control)
+% ==============================================================================
+% LEVEL 2: DATA SANITATION & GROUP PARTITIONING (1 WIDE CARD)
+% ==============================================================================
+\node[card=darkslate, text width=14.8cm, below=0.50cm of box1] (prep) {
+    \textbf{\large\color{navyblue} Stage 1: Data Sanitation \& Grouped Cross-Validation}\\[0.06cm]
+    Formula Canonicalization (\texttt{pymatgen}) \quad $\cdot$ \quad Logarithmic Target Scaling\\
+    \textbf{5-Fold \texttt{GroupKFold} by Reduced Formula} (Strict Polymorph Isolation \& Zero Leakage)
 };
 
 \draw[arrow] (dbs.south) -- (prep.north -| dbs.center);
 \draw[arrow] (foundations.south) -- (prep.north -| foundations.center);
 
-% --- LEVEL 3: DUAL REPRESENTATION LAYER ---
-\node[card=tealblue, text width=7.4cm, below=0.75cm of prep.south -| dbs.center] (physics) {
-    \textbf{\large\color{tealblue} Multi-Tier Physics Descriptors}\\[0.08cm]
-    \textbf{In-House Domain Feature Engineering}\\
-    $\bullet$ \textbf{Tier 1}: Element Mass Fractions \& Electronegativities\\
-    $\bullet$ \textbf{Tier 2}: Slater-Pauling Band Filling ($\text{VEC} \approx 8.3$)\\
-    $\bullet$ \textbf{Tier 3}: Goodenough-Kanamori Superexchange Proxies\\
-    $\bullet$ \textbf{Tier 4}: Stevens Crystal-Field Operators ($O_2^0, \alpha_J$)
+% ==============================================================================
+% LEVEL 3: DUAL REPRESENTATION LAYER (2 CARDS)
+% ==============================================================================
+\node[card=tealblue, text width=7.1cm, minimum height=1.75cm, below=0.52cm of prep.south -| dbs.center] (physics) {
+    \textbf{\large\color{tealblue} Stage 2a: Physics Descriptors}\\[0.06cm]
+    $\bullet$ Slater-Pauling Electron Filling\\
+    $\bullet$ Goodenough-Kanamori Superexchange\\
+    $\bullet$ Stevens Operators ($O_2^0, \alpha_J$)
 };
 
-\node[card=accentpurple, text width=7.4cm, below=0.75cm of prep.south -| foundations.center] (magformer) {
-    \textbf{\large\color{accentpurple} MagFormer Stoichiometric GNN}\\[0.08cm]
-    \textbf{In-House Graph Transformer (Trained Scratch)}\\
-    $\bullet$ \textbf{Topology}: Fully Connected Element Relational Graph\\
-    $\bullet$ \textbf{Pair-Bias Self-Attention}: Modulated by $|\mathbf{p}_i - \mathbf{p}_j|$\\
-    $\bullet$ \textbf{384-D Learned Embedding}: Stoichiometry Pooling\\
-    $\bullet$ Operates directly from formula when 3D coords are absent
+\node[card=accentpurple, text width=7.1cm, minimum height=1.75cm, below=0.52cm of prep.south -| foundations.center] (magformer) {
+    \textbf{\large\color{accentpurple} Stage 2b: MagFormer GNN}\\[0.06cm]
+    $\bullet$ Stoichiometric Relational Attention\\
+    $\bullet$ 384-D Learned Compositional Embedding\\
+    $\bullet$ Coordinate-Free Stoichiometric Inference
 };
 
 \draw[arrow] (prep.south -| physics.center) -- (physics.north);
 \draw[arrow] (prep.south -| magformer.center) -- (magformer.north);
 
-% --- LEVEL 4: MACHINE LEARNING & CONFORMAL UNCERTAINTY ---
-\node[card=accentorange, text width=10.0cm, below=0.75cm of physics.south west, anchor=north west] (ensemble) {
-    \textbf{\large\color{accentorange} 5-Model Specialist Ensembles (In-House)}\\[0.08cm]
-    $\bullet$ \textbf{Algorithms}: CatBoost $\cdot$ LightGBM $\cdot$ XGBoost $\cdot$ ExtraTrees $\cdot$ Random Forest\\
-    $\bullet$ \textbf{Meta-Blending}: Non-Negative Least Squares (NNLS) Stacking on 8 Targets\\
-    $\bullet$ \textbf{Boundary Phase Classifier}: Ambiguous Compounds ($|P(\text{FM}) - P(\text{AFM})| < 0.20$)
+% ==============================================================================
+% LEVEL 4: MACHINE LEARNING & CONFORMAL UNCERTAINTY (1 WIDE CARD)
+% ==============================================================================
+\node[card=accentorange, text width=14.8cm, below=0.52cm of $(physics.south)!0.5!(magformer.south)$] (ml) {
+    \textbf{\large\color{accentorange} Stage 3: Specialist ML Ensembles \& Conformal Uncertainty}\\[0.08cm]
+    $\bullet$ \textbf{5-Model Specialist Ensembles}: CatBoost, LightGBM, XGBoost, ExtraTrees, Random Forest\\
+    $\bullet$ \textbf{Stacking \& Boundary Classifier}: NNLS Blend across 8 Targets $\cdot$ Resolves Ambiguous FM/AFM\\
+    $\bullet$ \textbf{Conformal Engine}: Split Residual Calibration $\longrightarrow$ \textbf{90\% Prediction Interval} ($\hat{y} \pm q_{\text{conf}}$)
 };
 
-\node[card=accentorange, text width=4.8cm, right=0.6cm of ensemble] (conformal) {
-    \textbf{\large\color{accentorange} Conformal Engine}\\[0.08cm]
-    \textbf{In-House Uncertainty Calibration}\\
-    $\bullet$ Split Conformal Prediction on OOF\\
-    $\bullet$ Residual Quantile Filtering\\
-    $\bullet$ \textbf{90\% Coverage Range}: $\hat{y} \pm q_{\text{conf}}$
-};
+\draw[arrow] (physics.south) -- (ml.north -| physics.center);
+\draw[arrow] (magformer.south) -- (ml.north -| magformer.center);
 
-\draw[arrow] (physics.south) -- ++(0,-0.2) -| ($(ensemble.north)+(-2.2,0)$);
-\draw[arrow] (magformer.south) -- ++(0,-0.2) -| ($(ensemble.north)+(2.2,0)$);
-\draw[arrow] (ensemble.east) -- (conformal.west);
-
-% --- LEVEL 5: PHYSICAL CASCADE & WEB DISCOVERY ---
-\node[card=accentgreen, text width=7.4cm, below=0.75cm of ensemble.south -| dbs.center] (cascade) {
-    \textbf{\large\color{accentgreen} Stage 4: Micromagnetic Cascade}\\[0.08cm]
-    \textbf{In-House Physical Constraint Enforcement}\\
-    $\bullet$ \textbf{Intrinsic Coupling}: OOF $K_1, M_s \longrightarrow$ Extrinsic $H_c, (BH)_{\max}$\\
-    $\bullet$ \textbf{Kronmüller Coercivity}: $H_c \approx \alpha_{\text{micro}} \frac{2 K_1}{\mu_0 M_s} - N_{\text{eff}} M_s$\\
+% ==============================================================================
+% LEVEL 5: PHYSICAL CASCADE & WEB DISCOVERY (2 CARDS)
+% ==============================================================================
+\node[card=accentgreen, text width=7.1cm, minimum height=2.45cm, below=0.52cm of ml.south -| dbs.center] (cascade) {
+    \textbf{\large\color{accentgreen} Stage 4: Micromagnetic Cascade}\\[0.06cm]
+    $\bullet$ \textbf{Intrinsic Coupling}: $K_1, M_s \longrightarrow H_c, (BH)_{\max}$\\
+    $\bullet$ \textbf{Kronmüller}: $H_c \approx \alpha \frac{2 K_1}{\mu_0 M_s} - N_{\text{eff}} M_s$\\
     $\bullet$ \textbf{Thermodynamic Bound}: $(BH)_{\max} \le \frac{1}{4} \mu_0 M_s^2$
 };
 
-\node[card=tealblue, text width=7.4cm, below=0.75cm of ensemble.south -| foundations.center] (app) {
-    \textbf{\large\color{navyblue} Stage 5: Interactive Web Platform}\\[0.08cm]
-    \textbf{Streamlit Graphical User Interface}\\
-    $\bullet$ \textbf{Real-Time Prediction}: Single-compound inference with 90\% bands\\
-    $\bullet$ \textbf{Rare-Earth Screening}: Filter low / zero Nd, Dy, Sm content\\
-    $\bullet$ \textbf{Pareto Optimization}: Interactive $(BH)_{\max}$ vs. $T_C$ frontier
+\node[card=tealblue, text width=7.1cm, minimum height=2.45cm, below=0.52cm of ml.south -| foundations.center] (app) {
+    \textbf{\large\color{navyblue} Stage 5: Interactive Web Platform}\\[0.06cm]
+    $\bullet$ \textbf{Streamlit GUI}: Multi-Property Screening\\
+    $\bullet$ \textbf{Inverse Explorer}: Rare-Earth-Free Search\\
+    $\bullet$ \textbf{Pareto Frontier}: Interactive $(BH)_{\max}$ vs $T_C$
 };
 
-\draw[arrow] (ensemble.south -| cascade.center) -- (cascade.north);
-\draw[arrow] (cascade.east) -- (app.west);
-\draw[arrow] (conformal.south) -- (app.north -| conformal.center);
+\draw[arrow] (ml.south -| cascade.center) -- (cascade.north);
+\draw[arrow] (ml.south -| app.center) -- (app.north);
+\draw[arrow] (cascade.center -| cascade.east) -- (cascade.center -| app.west);
 
 \end{tikzpicture}
 \caption{System architecture and end-to-end data flow of MagMat-Discovery. Curated databases (NEMAD, Materials Project funded by DOE) and pretrained foundation models (MACE-MP-0, DAO) provide baseline ground truths and structural embeddings. In-house pipeline components (MagFormer stoichiometric transformer, multi-tier physics featurizers, 5-model specialist ensembles, micromagnetic physical cascades, and conformal uncertainty calibration) perform leak-free training and screening.}
