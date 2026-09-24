@@ -108,17 +108,17 @@
 \section*{Executive Summary}
 \addcontentsline{toc}{section}{Executive Summary}
 
-Discovering high-performance permanent magnets with reduced rare-earth content is important for electric vehicles, wind turbines, and industrial machinery. Developing sustainable alternatives requires identifying materials that satisfy three physical criteria: high Curie temperature ($T_C > 400\,\text{K}$), strong saturation magnetization ($\mu_0 M_s > 1.0\,\text{T}$), and high coercivity ($H_c > 800\,\text{kA/m}$). However, machine learning across magnetic materials is difficult because intrinsic properties depend on atomic interactions while extrinsic properties depend heavily on grain boundaries and microstructure. In addition, standard random splits cause severe data leakage between similar compositions and crystal phases, and unconstrained models risk making predictions that violate physical laws.
+Discovering permanent magnets with reduced rare-earth content is important for electric vehicles, wind turbines, and industrial machinery. Useful candidates must meet three criteria: Curie temperature $T_C > 400\,\text{K}$, saturation magnetization $\mu_0 M_s > 1.0\,\text{T}$, and coercivity $H_c > 800\,\text{kA/m}$. However, machine learning for magnetic materials is challenging because intrinsic properties depend on atomic chemistry while extrinsic properties depend on grain microstructure. Furthermore, random data splits cause leakage between identical compositions, and unconstrained models can make unphysical predictions.
 
-\textbf{MagMat-Discovery} addresses these challenges through four primary objectives:
+\textbf{MagMat-Discovery} addresses these challenges through four objectives:
 \begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Unified Multi-Target Modeling:} Simultaneously predict 8 intrinsic and extrinsic magnetic properties, covering magnetic ordering, operating temperatures, and hysteresis loop behavior.
-    \item \textbf{Leak-Free Grouped Evaluation:} Evaluate all models using 5-fold grouped cross-validation based on chemical formula, ensuring identical compositions and crystal variants never leak between training and test sets.
-    \item \textbf{Physics-Enforced Cascades:} Connect intrinsic predictions ($K_1, M_s$) to extrinsic properties ($H_c, (BH)_{\max}$) using micromagnetic equations and thermodynamic limits.
-    \item \textbf{Calibrated Uncertainty and Screening:} Provide 90\% conformal prediction intervals for every continuous property and deploy an interactive web platform for candidate discovery.
+    \item \textbf{Multi-Target Modeling:} Predict 8 intrinsic and extrinsic magnetic properties covering phase, transition temperatures, and hysteresis behavior.
+    \item \textbf{Grouped Evaluation:} Evaluate models with 5-fold grouped cross-validation by chemical formula to prevent data leakage.
+    \item \textbf{Physics Cascades:} Connect intrinsic predictions ($K_1, M_s$) to extrinsic properties ($H_c$ and $(BH)_{\max}$) using micromagnetic equations and physical bounds.
+    \item \textbf{Calibrated Uncertainty:} Provide 90\% conformal intervals for every continuous property alongside an interactive screening app.
 \end{enumerate}
 
-By combining curated experimental records, domain physics features, a custom composition graph transformer (\textbf{MagFormer}), 5-model ensembles, and calibrated uncertainty estimates, the platform accurately predicts magnetic ordering temperatures and provides physically sound candidate rankings for magnet discovery.
+By combining experimental data, physical features, the \textbf{MagFormer} graph model, ensembles, and conformal calibration, the platform accurately predicts magnetic properties and provides physically bounded rankings for magnet discovery.
 
 \vspace{0.4cm}
 \noindent\textbf{Keywords:} Magnetic Materials, Physics-Informed Machine Learning, Graph Transformers, Conformal Calibration, Coercivity, Permanent Magnets, Materials Screening.
@@ -139,20 +139,20 @@ Table~\ref{tab:glossary} summarizes the primary magnetic properties and machine 
 \label{tab:glossary}
 \begin{tabularx}{\textwidth}{l c X}
 \toprule
-\textbf{\color{navyblue}Term} & \textbf{\color{navyblue}Typical Unit} & \textbf{\color{navyblue}Physical Meaning / Definition} \\
+\textbf{\color{navyblue}Term} & \textbf{\color{navyblue}Unit} & \textbf{\color{navyblue}Definition} \\
 \midrule
-$T_C$ (Curie Temp.) & $\text{K}$ & Temperature above which a ferromagnetic material loses its spontaneous magnetization. \\
-$T_N$ (Néel Temp.) & $\text{K}$ & Temperature above which an antiferromagnetic material becomes paramagnetic. \\
-$M_s$ (Saturation Mag.) & $\text{emu/g}$ or $\text{T}$ & Maximum magnetization achieved in an applied magnetic field. Reported in mass units ($\text{emu/g}$) or magnetic polarization $\mu_0 M_s$ ($\text{T}$). \\
-$H_c$ (Coercivity) & $\text{A/m}$ or $\text{kA/m}$ & Applied magnetic field required to reduce magnetization back to zero after saturation. \\
+$T_C$ (Curie Temp.) & $\text{K}$ & Temperature above which a ferromagnet loses spontaneous magnetization. \\
+$T_N$ (Néel Temp.) & $\text{K}$ & Temperature above which an antiferromagnet becomes paramagnetic. \\
+$M_s$ (Saturation Mag.) & $\text{emu/g}$ or $\text{T}$ & Maximum magnetization in an applied field, reported in $\text{emu/g}$ or $\mu_0 M_s$ ($\text{T}$). \\
+$H_c$ (Coercivity) & $\text{A/m}$ or $\text{kA/m}$ & Magnetic field required to reduce magnetization to zero after saturation. \\
 $K_1$ (Anisotropy Constant) & $\text{J/m}^3$ & Energy density required to rotate magnetization away from the preferred crystal axis. \\
-$(BH)_{\max}$ (Energy Product) & $\text{kJ/m}^3$ & Primary figure of merit for permanent magnets, representing stored magnetic energy density. \\
-$\theta_p$ (Paramagnetic Curie Temp.) & $\text{K}$ & High-temperature intercept from Curie-Weiss susceptibility fitting; its sign reflects dominant exchange coupling. \\
-FM / AFM / NM & Discrete & Ground-state magnetic ordering: Ferromagnetic (parallel), Antiferromagnetic (antiparallel), or Non-magnetic. \\
+$(BH)_{\max}$ (Energy Product) & $\text{kJ/m}^3$ & Maximum stored magnetic energy density; main figure of merit for permanent magnets. \\
+$\theta_p$ (Paramagnetic Curie Temp.) & $\text{K}$ & High-temperature intercept from Curie-Weiss susceptibility fitting. \\
+FM / AFM / NM & Discrete & Ferromagnetic, Antiferromagnetic, or Non-magnetic ground-state ordering. \\
 \midrule
-Out-of-Fold (OOF) & -- & Predictions made on data held out during cross-validation, providing unbiased inputs to downstream models. \\
-Conformal Range & Physical & A calibrated uncertainty window constructed from validation errors, expected to contain the true value 90\% of the time. \\
-dex & $\log_{10}$ & Decimal order of magnitude. For example, an error of 0.65 means the predicted value is within a factor of $10^{0.65} \approx 4.5$ of the true value. \\
+Out-of-Fold (OOF) & -- & Predictions on held-out validation data, avoiding data leakage. \\
+Conformal Range & Physical & Uncertainty window covering the true value 90\% of the time. \\
+dex & $\log_{10}$ & Decimal order of magnitude. An error of 0.65 dex means a factor of $10^{0.65} \approx 4.5$. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -166,18 +166,18 @@ dex & $\log_{10}$ & Decimal order of magnitude. For example, an error of 0.65 me
 
 \subsection{Data Sources}
 \label{sec:data_sources}
-The platform combines experimental measurements with crystal symmetry databases to establish a reliable foundation for model training and evaluation:
+The platform uses three primary data sources:
 \begin{itemize}[leftmargin=1.5em]
-    \item \textbf{NEMAD Database:} 51,394 curated experimental records from the Non-Equilibrium Magnetic Materials Database \cite{nemad2025}, providing physical ground truths for magnetic phase, $T_C, T_N, M_s, K_1, H_c, (BH)_{\max}$, and $\theta_p$.
-    \item \textbf{Materials Project (U.S. Department of Energy / DOE):} Crystal symmetries (space groups 1--230, point groups, crystal systems, and densities) from the open database developed under the U.S. DOE Office of Science \cite{materials_project}. Computed ground-state energies and DFT magnetic moments are excluded to prevent target leakage when evaluating uncharacterized materials.
-    \item \textbf{Bilbao MAGNDATA:} Magnetic space group ground truths and Shubnikov symmetry classifications for magnetic phase cross-referencing.
+    \item \textbf{NEMAD Database:} 51,394 experimental records \cite{nemad2025} across all 8 target properties.
+    \item \textbf{Materials Project:} Crystal symmetries (space groups 1--230, crystal systems, and densities) \cite{materials_project}. DFT energies and moments are excluded to prevent target leakage.
+    \item \textbf{Bilbao MAGNDATA:} Magnetic space groups and Shubnikov symmetry classifications.
 \end{itemize}
 
 \subsection{Data Cleaning and Grouped Splits}
 \label{sec:data_splits}
-We clean the raw experimental data by reducing all chemical formulas to their simplest integer ratios using \texttt{pymatgen} (for example, simplifying $\text{Fe}_6\text{Pt}_2$ to $\text{Fe}_3\text{Pt}$). Properties spanning multiple orders of magnitude ($H_c, K_1, (BH)_{\max}$) are log-transformed to help models train smoothly.
+Chemical formulas are simplified to lowest integer ratios with \texttt{pymatgen} (e.g., $\text{Fe}_6\text{Pt}_2 \to \text{Fe}_3\text{Pt}$). Properties spanning multiple orders of magnitude ($H_c, K_1, (BH)_{\max}$) are log-transformed.
 
-To ensure realistic estimates of model performance on new materials, cross-validation is performed using a 5-fold grouped split (\texttt{GroupKFold}) based on the simplified chemical formula (\texttt{reduced\_formula}). Under this grouping, all records sharing the same chemical formula or different crystal phases of the same material (such as different forms of $\text{Fe}_3\text{Pt}$ or repeated entries of $\text{Nd}_2\text{Fe}_{14}\text{B}$) are kept together in a single fold. This ensures that test folds contain only unseen compounds, evaluating whether models learn general chemical trends rather than simply memorizing known formulas from the training data.
+To evaluate generalization to unseen materials, models are tested with 5-fold cross-validation grouped by chemical formula (\texttt{GroupKFold}). All entries with the same formula or crystal phase stay in the same split, ensuring test folds contain only new compounds.
 
 % ==============================================================================
 % 2. METHODOLOGY
@@ -188,7 +188,7 @@ To ensure realistic estimates of model performance on new materials, cross-valid
 \subsection{Architecture and Provenance}
 \label{sec:provenance}
 
-Figure~\ref{fig:methodology_flowchart} shows the overall workflow of MagMat-Discovery. A central design principle is clear provenance: distinguishing external databases and pretrained models from in-house algorithms (Table~\ref{tab:provenance}). External resources supply experimental ground truths, crystal symmetries, pretrained force-field priors, and generated crystal structures. All property regressors, boundary classifiers, micromagnetic cascades, and conformal calibrators were developed, trained, and validated in-house.
+Figure~\ref{fig:methodology_flowchart} shows the overall workflow of MagMat-Discovery, distinguishing external resources from in-house algorithms (Table~\ref{tab:provenance}). External databases and foundation models provide experimental records, crystal symmetries, and 3D crystal generation. All regressors, phase classifiers, micromagnetic cascades, and uncertainty calibrators were trained and evaluated in-house.
 
 \begin{figure}[!t]
 \centering
@@ -217,23 +217,23 @@ Figure~\ref{fig:methodology_flowchart} shows the overall workflow of MagMat-Disc
 ]
 
 % ==============================================================================
-% LEVEL 1: EXTERNAL FOUNDATIONS & DATABASES (2 CARDS)
+% LEVEL 1: EXTERNAL DATABASES & PRETRAINED MODELS (2 CARDS)
 % ==============================================================================
 \node[card=navyblue, text width=7.1cm, minimum height=1.45cm] (dbs) at (-3.85, 0) {
-    \textbf{\large\color{navyblue} Curated Databases}\\[0.06cm]
-    \textbf{NEMAD}: Experimental Ground Truths\\[1pt]
+    \textbf{\large\color{navyblue} Databases}\\[0.06cm]
+    \textbf{NEMAD}: Experimental Targets\\[1pt]
     \textbf{Materials Project}: Symmetries \& Density
 };
 
 \node[card=accentpurple, text width=7.1cm, minimum height=1.45cm] (foundations) at (3.85, 0) {
-    \textbf{\large\color{accentpurple} Pretrained Foundations}\\[0.06cm]
-    \textbf{MACE-MP-0}: Equivariant Force-Field Priors\\[1pt]
-    \textbf{DAO Engine}: Structure Synthesis \& $E_{\text{hull}}$
+    \textbf{\large\color{accentpurple} Pretrained Models}\\[0.06cm]
+    \textbf{MACE-MP-0}: 3D Structural Features\\[1pt]
+    \textbf{DAO Engine}: Structure Generation \& $E_{\text{hull}}$
 };
 
 \begin{scope}[on background layer]
     \node[groupbox=navyblue, fit=(dbs) (foundations)] (box1) {};
-    \node[grouplabel=navyblue, above=1pt of box1.north] {EXTERNAL DATA \& FOUNDATION MODELS (DOE / NEMAD / MACE / DAO)};
+    \node[grouplabel=navyblue, above=1pt of box1.north] {EXTERNAL DATA \& PRETRAINED MODELS};
 \end{scope}
 
 % ==============================================================================
@@ -303,36 +303,34 @@ Figure~\ref{fig:methodology_flowchart} shows the overall workflow of MagMat-Disc
 \draw[arrow] (cascade.center -| cascade.east) -- (cascade.center -| app.west);
 
 \end{tikzpicture}
-\caption{Overall workflow of MagMat-Discovery. External databases (NEMAD, Materials Project funded by DOE) and pretrained models (MACE-MP-0, DAO) provide experimental baseline records, crystal symmetries, and 3D structure generation. In-house pipeline components (MagFormer composition model, physical features, 5-model specialist ensembles, micromagnetic physical cascades, and conformal uncertainty calibration) perform leak-free training and screening.}
+\caption{Workflow of MagMat-Discovery, showing external resources, in-house representations, 5-model ensembles, physical cascades, and candidate screening.}
 \label{fig:methodology_flowchart}
 \end{figure}
 
-Table~\ref{tab:provenance} provides a detailed accounting of data and model origins across all pipeline stages.
+Table~\ref{tab:provenance} lists the data sources, pretrained models, and in-house components used in the pipeline.
 
 \begin{table}[!t]
 \centering
 \small\sffamily
-\caption{Provenance of databases, foundation models, and in-house algorithmic components in MagMat-Discovery.}
+\caption{Data sources, models, and algorithmic components in MagMat-Discovery.}
 \label{tab:provenance}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{>{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}p{7.2cm}}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{4.0cm} p{2.2cm} p{3.6cm} >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{\color{navyblue}Component} & \textbf{\color{navyblue}Category} & \textbf{\color{navyblue}Origin / Training Source} & \textbf{\color{navyblue}Exact Role in MagMat-Discovery} \\
+\textbf{\color{navyblue}Component} & \textbf{\color{navyblue}Type} & \textbf{\color{navyblue}Source} & \textbf{\color{navyblue}Role in Pipeline} \\
 \midrule
-\textbf{Materials Project (U.S. DOE)} & External DFT Database & High-throughput DFT funded by U.S. DOE Office of Science \cite{materials_project} & Supplies crystallographic symmetries (space groups 1--230), point groups, crystal systems, and densities. DFT total energies and magnetic moments are excluded to prevent target leakage. \\[3pt]
-\textbf{NEMAD Database} & External Experimental Database & Curated experimental literature compilation \cite{nemad2025} & Provides ground-truth experimental targets ($T_C, T_N, M_s, H_c, K_1, (BH)_{\max}$, phase) for 5-fold grouped model training and benchmark validation. \\[3pt]
-\textbf{MACE-MP-0 Foundation GNN} & External Pretrained Foundation Model & Equivariant neural network pretrained on DOE MP trajectories \cite{mace2022} & Extracts higher-order equivariant atomic cluster expansion descriptors, cohesive energies, and stress tensors for compounds with known 3D crystal structures. \\[3pt]
-\textbf{DAO Crystal Foundation Engine} & External Pretrained Foundation Model & Diffusion crystal foundation model (Huang et al., \emph{Nat. Commun.} 2026) \cite{dao2026} & Uses DAO-G to generate 3D crystal structures directly from chemical formulas and DAO-P to calculate thermodynamic stability ($E_{\text{hull}}$ in eV/atom). \\[3pt]
+Materials Project \cite{materials_project} & External DB & Open DFT repository & Crystal symmetries and densities (energies/moments excluded). \\
+NEMAD Database \cite{nemad2025} & External DB & Experimental literature & Target measurements for all 8 magnetic properties. \\
+MACE-MP-0 \cite{mace2022} & Pretrained & Equivariant GNN & 3D structural features for compounds with known coordinates. \\
+DAO Engine \cite{dao2026} & Pretrained & Diffusion model & Generates 3D unit cells (DAO-G) and checks stability $E_{\text{hull}}$ (DAO-P). \\
 \midrule
-\textbf{MagFormer Composition Model} & In-House Architecture (Trained from Scratch) & Designed and trained in this work on chemical compositions & Graph neural network that converts chemical formulas into 384-dimensional feature vectors without requiring 3D crystal coordinates. \\[3pt]
-\textbf{Multi-Tier Physics Descriptors} & In-House Domain Feature Engineering & Derived from solid-state and exchange physics theory & Physical features encoding electron counts ($\text{VEC} \approx 8.3$), magnetic exchange rules, spin-orbit coupling, and crystal-field factors ($O_2^0, \alpha_J$). \\[3pt]
-\textbf{5-Model Specialist Ensembles} & In-House Machine Learning Models & Trained on leak-free 5-fold grouped splits in this work & Diverse ensemble (CatBoost, LightGBM, XGBoost, ExtraTrees, Random Forest) with weighted blending across all 8 target properties. \\[3pt]
-\textbf{Boundary Phase Classifier} & In-House Machine Learning Model & Trained on ambiguous boundary compounds in this work & Specialized classifier that resolves difficult borderline cases between ferromagnetic and antiferromagnetic ordering ($|P(\text{FM}) - P(\text{AFM})| < 0.20$). \\[3pt]
-\textbf{Micromagnetic Physical Cascade} & In-House Physical Post-Processing & Formulated from micromagnetic theory \cite{kronmuller2003} & Applies physical laws to ensure coercivity follows the Kronmüller formula and caps energy product at the theoretical limit $(BH)_{\max} \le \frac{1}{4}\mu_0 M_s^2$. \\[3pt]
-\textbf{Conformal Uncertainty Engine} & In-House Uncertainty Calibration & Split conformal prediction on out-of-fold residuals \cite{vovk2005} & Calculates reliable 90\% prediction intervals ($y \pm q_{\text{conf}}$) calibrated directly from validation errors. \\
+MagFormer & In-House & Trained in this work & Maps chemical formulas to 384-D features without 3D coordinates. \\
+Physics Descriptors & In-House & Domain physics & Electron counts (VEC), superexchange proxies, Stevens factors. \\
+5-Model Ensembles & In-House & 5-fold grouped training & Blends CatBoost, LightGBM, XGBoost, ExtraTrees, Random Forest. \\
+Boundary Classifier & In-House & Ambiguous data & Resolves ambiguous FM vs. AFM phase predictions. \\
+Micromagnetic Cascade & In-House & Micromagnetic theory \cite{kronmuller2003} & Enforces Kronmüller coercivity and $(BH)_{\max} \le \frac{1}{4}\mu_0 M_s^2$. \\
+Conformal Engine & In-House & Validation residuals \cite{vovk2005} & Provides 90\% prediction intervals for continuous properties. \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabularx}
 \end{table}
 
 \subsection{Representations and Structure Synthesis}
@@ -340,19 +338,19 @@ Table~\ref{tab:provenance} provides a detailed accounting of data and model orig
 \label{sec:magformer_architecture}
 \label{sec:dao_screening}
 
-To describe materials accurately, the pipeline uses three complementary methods:
+The pipeline represents materials using three complementary methods:
 
-\textbf{1. Multi-Tier Physics Descriptors:} Physical features are organized into four simple tiers (equations in Appendix~\ref{sec:appendix_physics}):
+\textbf{1. Physics Descriptors:} Features organized into four tiers (Appendix~\ref{sec:appendix_physics}):
 \begin{itemize}[leftmargin=1.5em]
-    \item \emph{Tier 1 (Chemical Composition):} Elemental mass fractions, atomic numbers, covalent radii, and electronegativities.
-    \item \emph{Tier 2 (Electronic Structure):} Valence electron count relative to the Slater-Pauling peak ($\text{VEC} \approx 8.3$), magnetic exchange rules, and spin-orbit coupling ($\propto Z^4$).
-    \item \emph{Tier 3 (Crystal Field):} Crystal family indicators and Stevens operator factors ($O_2^0, \alpha_J$) derived from Materials Project symmetries to indicate magnetic easy-axis preference.
-    \item \emph{Tier 4 (3D Structure Features):} Atomic environment features extracted from MACE-MP-0 \cite{mace2022} when 3D crystal coordinates are available.
+    \item \emph{Tier 1 (Composition):} Mass fractions, atomic numbers, covalent radii, and electronegativities.
+    \item \emph{Tier 2 (Electronic Structure):} Valence electron count relative to the Slater-Pauling peak ($\text{VEC} \approx 8.3$), exchange rules, and spin-orbit coupling ($\propto Z^4$).
+    \item \emph{Tier 3 (Crystal Field):} Crystal family indicators and Stevens factors ($O_2^0, \alpha_J$) for easy-axis preference.
+    \item \emph{Tier 4 (3D Features):} Atomic representations from MACE-MP-0 \cite{mace2022} when 3D coordinates exist.
 \end{itemize}
 
-\textbf{2. MagFormer Graph Model:} When screening new alloys without known 3D crystal coordinates, \textbf{MagFormer} converts the chemical formula directly into 384-dimensional numerical features using self-attention across the constituent elements (Appendix~\ref{sec:appendix_magformer}).
+\textbf{2. MagFormer Model:} For screening materials without crystal coordinates, \textbf{MagFormer} maps chemical formulas to 384-dimensional feature vectors using self-attention (Appendix~\ref{sec:appendix_magformer}).
 
-\textbf{3. DAO 3D Structure Generation and Stability:} When full 3D coordinates are needed, the platform calls the pretrained DAO model \cite{dao2026}. Its generator (DAO-G) builds the 3D unit cell directly from the chemical formula, while its predictor (DAO-P) calculates thermodynamic stability ($E_{\text{hull}}$). Materials with $E_{\text{hull}} < 0.05\,\text{eV/atom}$ are considered stable and synthesizable in the lab.
+\textbf{3. DAO Structure Generation:} When 3D coordinates are needed, the pretrained DAO model \cite{dao2026} generates unit cells (DAO-G) and calculates stability ($E_{\text{hull}}$ via DAO-P). Materials with $E_{\text{hull}} < 0.05\,\text{eV/atom}$ are considered synthesizable.
 
 \subsection{Ensembles, Cascades, and Uncertainty}
 \label{sec:ensembles_and_cascades}
@@ -386,7 +384,7 @@ we provide an error window $[\hat{y} - q_{\text{conf}},\, \hat{y} + q_{\text{con
 \subsection{Benchmark Performance}
 \label{sec:master_benchmark}
 
-We evaluate all models using 5-fold cross-validation grouped by chemical formula (Section~\ref{sec:data_splits}). We measure prediction quality using the coefficient of determination ($R^2$, where 1.0 is perfect) and mean absolute error (MAE). MAE is reported in standard physical units ($\text{K}$ for temperatures, $\text{emu/g}$ for magnetization) and in orders of magnitude ($\log_{10}$ error, where 0.65 means an error factor of about 4.5) for properties spanning large ranges ($H_c, K_1, (BH)_{\max}$). Table~\ref{tab:master_metrics} summarizes the benchmark results across all 8 targets.
+Models are evaluated using 5-fold cross-validation grouped by chemical formula (Section~\ref{sec:data_splits}). Performance is measured by the coefficient of determination ($R^2$) and mean absolute error (MAE). MAE is reported in physical units ($\text{K}, \text{emu/g}$) or decimal orders of magnitude ($\log_{10}$ error) for wide-range properties ($H_c, K_1, (BH)_{\max}$). Table~\ref{tab:master_metrics} reports benchmark results across all 8 targets.
 
 \begin{table}[!t]
 \centering
@@ -414,9 +412,9 @@ We evaluate all models using 5-fold cross-validation grouped by chemical formula
 \subsection{Parity Analysis}
 \label{sec:parity_analysis}
 
-Across the 8 properties, there is a clear difference between intrinsic properties (set by atomic composition) and extrinsic properties (heavily influenced by sample processing and grain structure):
+Performance reflects the difference between intrinsic properties (set by chemistry) and extrinsic properties (set by microstructure):
 
-\textbf{Transition Temperatures ($T_C$ and $T_N$):} As shown in Figure~\ref{fig:pair_temperatures}, Curie and Néel temperatures show high accuracy ($R^2 = 0.82$ and $0.74$). Because magnetic ordering temperatures depend directly on atomic composition and chemical bonding, both our physical features and MagFormer embeddings capture the underlying physics well across the entire temperature range.
+\textbf{Transition Temperatures ($T_C$ and $T_N$):} Curie and Néel temperatures achieve high accuracy ($R^2 = 0.82$ and $0.74$, Figure~\ref{fig:pair_temperatures}) because ordering temperatures depend directly on chemical bonding and composition.
 
 \begin{figure}[!t]
     \centering
@@ -433,11 +431,11 @@ Across the 8 properties, there is a clear difference between intrinsic propertie
         \caption{Néel Temperature ($T_N$) Parity}
         \label{fig:neel_parity}
     \end{subfigure}
-    \caption{Parity plots for Curie ($T_C$) and Néel ($T_N$) transition temperatures. Points close to the diagonal line represent accurate predictions. Both models demonstrate strong accuracy across the operating temperature range ($R^2 = 0.82$ and $0.74$), with scatter increasing slightly below 100~K.}
+    \caption{Parity plots for Curie ($T_C$) and Néel ($T_N$) transition temperatures. Both models show strong accuracy across operating temperatures ($R^2 = 0.82$ and $0.74$), with slight scatter below 100~K.}
     \label{fig:pair_temperatures}
 \end{figure}
 
-\textbf{Magnetization and Coercivity ($M_s$ and $H_c$):} Figure~\ref{fig:pair_moment_coercivity} compares saturation magnetization and coercivity. Magnetization shows good agreement ($R^2 = 0.54$, $\text{MAE} = 26.1\,\text{emu/g}$), capturing variations in magnetic moment. Coercivity spans four orders of magnitude ($10^2$ to $10^6\,\text{A/m}$). Because coercivity depends strongly on grain boundaries and processing defects that cannot be known from the chemical formula alone, individual predictions show wider scatter ($\text{MAE} = 0.65$ in $\log_{10}$ scale, or roughly a factor of 4.5). Nevertheless, the model captures the overall trend ($R^2 = 0.62$), making it an effective pre-filter to separate hard magnets from soft magnets.
+\textbf{Magnetization and Coercivity ($M_s$ and $H_c$):} Saturation magnetization reaches $R^2 = 0.54$ ($\text{MAE} = 26.1\,\text{emu/g}$, Figure~\ref{fig:pair_moment_coercivity}). Coercivity spans four orders of magnitude ($10^2$ to $10^6\,\text{A/m}$). Because coercivity depends on grain boundaries and defects not captured by formula alone, predictions show wider scatter ($\text{MAE} = 0.65$ in $\log_{10}$ scale). Nonetheless, the overall trend ($R^2 = 0.62$) reliably separates hard from soft magnets.
 
 \begin{figure}[!t]
     \centering
@@ -458,7 +456,7 @@ Across the 8 properties, there is a clear difference between intrinsic propertie
     \label{fig:pair_moment_coercivity}
 \end{figure}
 
-\textbf{Anisotropy and Energy Product ($K_1$ and $(BH)_{\max}$):} Figure~\ref{fig:pair_anisotropy_bhmax} presents results for magnetic anisotropy and energy product. For anisotropy $K_1$ ($R^2 = 0.46$), the model successfully identifies strong easy-axis compounds ($K_1 > 10^6\,\text{J/m}^3$). For energy product $(BH)_{\max}$ ($R^2 = 0.51$, $\text{MAE} = 0.27$ in $\log_{10}$ scale), the cascade strictly enforces the upper physical limit $(BH)_{\max} \le \frac{1}{4}\mu_0 M_s^2$, preventing unrealistically high predictions.
+\textbf{Anisotropy and Energy Product ($K_1$ and $(BH)_{\max}$):} Anisotropy $K_1$ ($R^2 = 0.46$, Figure~\ref{fig:pair_anisotropy_bhmax}) identifies strong easy-axis candidates ($K_1 > 10^6\,\text{J/m}^3$). For energy product $(BH)_{\max}$ ($R^2 = 0.51$, $\text{MAE} = 0.27$ in $\log_{10}$ scale), the cascade enforces $(BH)_{\max} \le \frac{1}{4}\mu_0 M_s^2$, preventing unphysical predictions.
 
 \begin{figure}[!t]
     \centering
@@ -484,7 +482,7 @@ Across the 8 properties, there is a clear difference between intrinsic propertie
 
 To assess representation quality, classification discrimination, statistical uncertainty, and practical candidate discovery:
 
-\textbf{Learned Representations and Micromagnetic Scaling:} Figure~\ref{fig:pair_umap_kronmuller} shows a 2D map (UMAP) of the features learned by MagFormer, alongside a check of Kronmüller coercivity scaling. The 2D map shows that materials naturally cluster by their magnetic type (ferromagnetic, antiferromagnetic, or non-magnetic). The Kronmüller plot confirms that predicted coercivity scales properly with $2K_1 / \mu_0 M_s$, verifying that the model respects physical micromagnetic laws.
+\textbf{Learned Representations and Micromagnetic Scaling:} Figure~\ref{fig:pair_umap_kronmuller}(a) maps MagFormer features via UMAP, showing distinct clusters for ferromagnetic, antiferromagnetic, and non-magnetic materials. Figure~\ref{fig:pair_umap_kronmuller}(b) confirms that coercivity scales with the Kronmüller parameter ($2K_1 / \mu_0 M_s$).
 
 \begin{figure}[!t]
     \centering
@@ -505,7 +503,7 @@ To assess representation quality, classification discrimination, statistical unc
     \label{fig:pair_umap_kronmuller}
 \end{figure}
 
-\textbf{Magnetic Phase Classification:} Figure~\ref{fig:pair_phase_roc} shows diagnostic plots for magnetic phase classification. The ensemble achieves 91.9\% overall accuracy with area under the ROC curve $\ge 0.96$ across all classes. The dedicated boundary classifier achieves an $F_1$ score of 0.82 on the smaller antiferromagnetic class.
+\textbf{Magnetic Phase Classification:} Phase classification achieves 91.9\% accuracy ($\text{AUC} \ge 0.96$, Figure~\ref{fig:pair_phase_roc}), with the boundary classifier reaching $F_1 = 0.82$ on the smaller antiferromagnetic class.
 
 \begin{figure}[!t]
     \centering
@@ -526,7 +524,7 @@ To assess representation quality, classification discrimination, statistical unc
     \label{fig:pair_phase_roc}
 \end{figure}
 
-\textbf{Uncertainty Calibration and Error Checks:} Figure~\ref{fig:pair_conformal_residuals} evaluates the uncertainty intervals and prediction errors. The calibration curve shows that actual coverage matches the expected confidence levels very closely, confirming that the 90\% prediction intervals are reliable. In addition, prediction errors remain centered around zero across the entire temperature range without blowing up at high temperatures.
+\textbf{Uncertainty Calibration:} The conformal calibration curve (Figure~\ref{fig:pair_conformal_residuals}(a)) closely tracks the ideal diagonal, confirming that 90\% intervals achieve correct coverage. Residuals remain centered near zero across operating temperatures (Figure~\ref{fig:pair_conformal_residuals}(b)).
 
 \begin{figure}[!t]
     \centering
@@ -547,7 +545,7 @@ To assess representation quality, classification discrimination, statistical unc
     \label{fig:pair_conformal_residuals}
 \end{figure}
 
-\textbf{Candidate Screening and Crystal Structures:} Figure~\ref{fig:pair_pareto_distributions} shows the trade-off curve (Pareto frontier) comparing energy product ($(BH)_{\max}$) against Curie temperature ($T_C$), alongside temperature distributions across crystal families. The trade-off curve highlights promising rare-earth-free and rare-earth-reduced candidates along the top boundary. The crystal breakdown confirms that tetragonal and hexagonal systems contain the highest concentration of materials with high operating temperatures and strong magnetic anisotropy.
+\textbf{Candidate Screening:} The Pareto frontier (Figure~\ref{fig:pair_pareto_distributions}(a)) identifies candidates balancing $(BH)_{\max}$ and $T_C$. Crystal system distributions (Figure~\ref{fig:pair_pareto_distributions}(b)) confirm that tetragonal and hexagonal systems provide the highest share of high-$T_C$, high-anisotropy materials.
 
 \begin{figure}[!t]
     \centering
@@ -584,10 +582,10 @@ The MagMat-Discovery web application provides an interactive interface for candi
 \end{figure}
 
 \begin{itemize}[leftmargin=1.5em, itemsep=2pt]
-    \item \textbf{Forward Screener:} Users enter any chemical formula or select reference magnets ($\text{Nd}_2\text{Fe}_{14}\text{B}$, $\text{SmCo}_5$, Alnico, $\text{Fe}_{16}\text{N}_2$). The engine displays predictions across all 8 magnetic properties with 90\% uncertainty ranges, simulated $M$-$H$ hysteresis loops, temperature demagnetization curves $M_s(T)$, and interactive 3D crystal structures with downloadable \texttt{.cif} files.
-    \item \textbf{Inverse Explorer:} Users set performance goals (such as $T_C \ge 500\,\text{K}$ and $(BH)_{\max} \ge 120\,\text{kJ/m}^3$) and apply constraints (such as excluding expensive rare earths like Nd, Dy, and Sm) to find promising candidate materials.
-    \item \textbf{Discovery Catalog:} Allows users to search, filter, and export material records, with direct filtering along the optimal performance curve.
-    \item \textbf{Data \& Methodology Reference:} Displays dataset statistics, space group distributions, and cross-validation metrics directly within the browser session.
+    \item \textbf{Forward Screener:} Users enter a formula or select reference magnets ($\text{Nd}_2\text{Fe}_{14}\text{B}$, $\text{SmCo}_5$, Alnico, $\text{Fe}_{16}\text{N}_2$) to view property predictions with 90\% intervals, simulated $M$-$H$ loops, $M_s(T)$ curves, and 3D crystal structures.
+    \item \textbf{Inverse Explorer:} Users set targets (e.g., $T_C \ge 500\,\text{K}$, $(BH)_{\max} \ge 120\,\text{kJ/m}^3$) and filter by composition, such as excluding critical rare earths (Nd, Dy, Sm).
+    \item \textbf{Discovery Catalog:} Browsing and export of material records, with filtering along the Pareto efficiency frontier.
+    \item \textbf{Reference Tab:} Dataset statistics, space group distributions, and validation metrics displayed in the app.
 \end{itemize}
 
 % ==============================================================================
@@ -595,13 +593,13 @@ The MagMat-Discovery web application provides an interactive interface for candi
 % ==============================================================================
 \section{Summary and Outlook}
 
-MagMat-Discovery demonstrates that combining physical principles, graph neural networks, and micromagnetic rules creates an effective, transparent platform for screening permanent magnets:
+MagMat-Discovery combines physical principles, graph neural networks, and micromagnetic rules to screen permanent magnets:
 \begin{itemize}[leftmargin=1.5em, itemsep=2pt]
-    \item \textbf{Accurate Screening:} Magnetic phase classification (91.9\% accuracy) and transition temperatures ($R^2 = 0.82$ for $T_C$) act as fast, dependable initial filters.
-    \item \textbf{Practical Ranking:} Extrinsic properties ($H_c, K_1, (BH)_{\max}$) achieve useful correlations ($R^2 = 0.46$--$0.62$), giving experimentalists a physically sound way to rank candidate materials before spending time and resources in the lab.
+    \item \textbf{Accurate Screening:} Magnetic phase classification (91.9\% accuracy) and ordering temperatures ($R^2 = 0.82$ for $T_C$) serve as reliable initial filters.
+    \item \textbf{Physical Ranking:} Extrinsic properties ($H_c, K_1, (BH)_{\max}$) achieve $R^2 = 0.46$--$0.62$, providing a grounded pre-filter to prioritize candidates for synthesis.
 \end{itemize}
 
-Future work will focus on modeling grain-boundary phases, domain wall pinning, and linking the discovery platform directly to automated laboratory synthesis.
+Future work will incorporate grain-boundary phase models, domain wall pinning, and integration with automated synthesis platforms.
 
 % ==============================================================================
 % REFERENCES
