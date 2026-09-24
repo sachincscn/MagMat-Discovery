@@ -110,12 +110,10 @@
 
 Discovering permanent magnets with reduced rare-earth content is important for electric vehicles, wind turbines, and industrial machinery. Useful candidates must meet three criteria: Curie temperature $T_C > 400\,\text{K}$, saturation magnetization $\mu_0 M_s > 1.0\,\text{T}$, and coercivity $H_c > 800\,\text{kA/m}$. However, machine learning for magnetic materials is challenging because intrinsic properties depend on atomic chemistry while extrinsic properties depend on grain microstructure. Furthermore, random data splits cause leakage between identical compositions, and unconstrained models can make unphysical predictions.
 
-\textbf{MagMat-Discovery} addresses these challenges through four objectives:
+\textbf{MagMat-Discovery} addresses these challenges through two primary objectives:
 \begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Multi-Target Modeling:} Predict 8 intrinsic and extrinsic magnetic properties covering phase, transition temperatures, and hysteresis behavior.
-    \item \textbf{Grouped Evaluation:} Evaluate models with 5-fold grouped cross-validation by chemical formula to prevent data leakage.
-    \item \textbf{Physics Cascades:} Connect intrinsic predictions ($K_1, M_s$) to extrinsic properties ($H_c$ and $(BH)_{\max}$) using micromagnetic equations and physical bounds.
-    \item \textbf{Calibrated Uncertainty:} Provide 90\% conformal intervals for every continuous property alongside an interactive screening app.
+    \item \textbf{Leak-Free Multi-Property Modeling:} Simultaneously predict 8 intrinsic and extrinsic magnetic properties (phase, transition temperatures, and hysteresis behavior) using domain physics features, graph models, and 5-fold grouped cross-validation to prevent chemical formula leakage.
+    \item \textbf{Physics-Constrained Screening and Uncertainty:} Connect intrinsic predictions to extrinsic properties via micromagnetic relations, quantify prediction confidence using 90\% conformal intervals, and provide an interactive web platform for candidate discovery.
 \end{enumerate}
 
 By combining experimental data, physical features, the \textbf{MagFormer} graph model, ensembles, and conformal calibration, the platform accurately predicts magnetic properties and provides physically bounded rankings for magnet discovery.
@@ -193,7 +191,7 @@ Figure~\ref{fig:methodology_flowchart} shows the overall workflow of MagMat-Disc
 \begin{figure}[!t]
 \centering
 \begin{tikzpicture}[
-    scale=0.86, every node/.style={transform shape},
+    scale=0.80, every node/.style={transform shape},
     >=Stealth,
     card/.style={
         rectangle, rounded corners=6pt,
@@ -333,47 +331,40 @@ Conformal Engine & In-House & Validation residuals \cite{vovk2005} & Provides 90
 \end{tabularx}
 \end{table}
 
-\subsection{Representations and Structure Synthesis}
+\subsection{Input Representations and Crystal Generation}
 \label{sec:physics_descriptors}
 \label{sec:magformer_architecture}
 \label{sec:dao_screening}
 
-The pipeline represents materials using three complementary methods:
-
-\textbf{1. Physics Descriptors:} Features organized into four tiers (Appendix~\ref{sec:appendix_physics}):
+As outlined in Table~\ref{tab:provenance}, candidate materials are represented through domain physics features and graph neural embeddings:
 \begin{itemize}[leftmargin=1.5em]
-    \item \emph{Tier 1 (Composition):} Mass fractions, atomic numbers, covalent radii, and electronegativities.
-    \item \emph{Tier 2 (Electronic Structure):} Valence electron count relative to the Slater-Pauling peak ($\text{VEC} \approx 8.3$), exchange rules, and spin-orbit coupling ($\propto Z^4$).
-    \item \emph{Tier 3 (Crystal Field):} Crystal family indicators and Stevens factors ($O_2^0, \alpha_J$) for easy-axis preference.
-    \item \emph{Tier 4 (3D Features):} Atomic representations from MACE-MP-0 \cite{mace2022} when 3D coordinates exist.
+    \item \textbf{Physics Descriptors:} Formulations covering composition, electronic structure, and single-ion anisotropy factors (detailed in Appendix~\ref{sec:appendix_physics}).
+    \item \textbf{MagFormer Graph Embeddings:} Learned 384-dimensional representation vectors derived directly from chemical formulas via pair-biased self-attention (detailed in Appendix~\ref{sec:appendix_magformer}).
+    \item \textbf{Crystal Structure Synthesis:} When 3D atomic coordinates are required, structures are generated and evaluated for thermodynamic stability using the pretrained DAO framework \cite{dao2026}.
 \end{itemize}
-
-\textbf{2. MagFormer Model:} For screening materials without crystal coordinates, \textbf{MagFormer} maps chemical formulas to 384-dimensional feature vectors using self-attention (Appendix~\ref{sec:appendix_magformer}).
-
-\textbf{3. DAO Structure Generation:} When 3D coordinates are needed, the pretrained DAO model \cite{dao2026} generates unit cells (DAO-G) and calculates stability ($E_{\text{hull}}$ via DAO-P). Materials with $E_{\text{hull}} < 0.05\,\text{eV/atom}$ are considered synthesizable.
 
 \subsection{Ensembles, Cascades, and Uncertainty}
 \label{sec:ensembles_and_cascades}
 
-We predict each property using an ensemble of five machine learning models: CatBoost, LightGBM, XGBoost, ExtraTrees, and Random Forest. Their predictions are combined through weighted averaging (non-negative least squares). For magnetic phase, a secondary classifier resolves borderline cases where ferromagnetic and antiferromagnetic probabilities are close ($|P(\text{FM}) - P(\text{AFM})| < 0.20$).
+Target properties are predicted using 5-model ensembles combined through non-negative least squares weighting (Table~\ref{tab:provenance}), with ambiguous magnetic phases resolved by a specialized boundary classifier.
 
-To prevent predictions that violate the laws of physics, the pipeline uses a step-by-step physical cascade:
+To ensure predictions obey physical laws, the pipeline enforces a micromagnetic cascade linking intrinsic parameters to extrinsic hysteresis behavior:
 \begin{enumerate}[leftmargin=1.5em]
     \item Intrinsic properties ($K_1$ and $M_s$) are predicted first.
-    \item These predictions feed into the coercivity ($H_c$) and energy product ($(BH)_{\max}$) models, ensuring coercivity follows the Kronmüller relationship \cite{kronmuller2003}:
+    \item These feed into coercivity ($H_c$) modeling to follow the Kronmüller relationship \cite{kronmuller2003}:
     \begin{equation}
         H_c \approx \alpha_{\text{micro}} \frac{2 K_1}{\mu_0 M_s} - N_{\text{eff}} M_s
         \label{eq:kronmuller}
     \end{equation}
-    where $\alpha_{\text{micro}}$ accounts for grain defects and $N_{\text{eff}}$ is the demagnetizing factor.
-    \item Predicted energy products are capped at the theoretical limit: $(BH)_{\max} \le \frac{1}{4}\mu_0 M_s^2$.
+    where $\alpha_{\text{micro}}$ represents microstructural defect pinning and $N_{\text{eff}}$ is the effective demagnetization factor.
+    \item Predicted energy products are bounded by the theoretical maximum: $(BH)_{\max} \le \frac{1}{4}\mu_0 M_s^2$.
 \end{enumerate}
 
-Every continuous prediction includes a calibrated uncertainty range using conformal prediction \cite{vovk2005}. By taking the 90th percentile of absolute errors on held-out validation data:
+Every continuous property is accompanied by a distribution-free uncertainty estimate calibrated on held-out validation residuals \cite{vovk2005}:
 \begin{equation}
     q_{\text{conf}} = \text{Quantile}_{0.90} \left( \{ |y_i - \hat{y}_i| \}_{i=1}^n \right)
 \end{equation}
-we provide an error window $[\hat{y} - q_{\text{conf}},\, \hat{y} + q_{\text{conf}}]$ that covers the true value 90\% of the time.
+providing guaranteed 90\% empirical coverage intervals $[\hat{y} - q_{\text{conf}},\, \hat{y} + q_{\text{conf}}]$ for candidate screening.
 
 % ==============================================================================
 % 3. MODEL VALIDATION
@@ -477,7 +468,7 @@ Performance reflects the difference between intrinsic properties (set by chemist
     \label{fig:pair_anisotropy_bhmax}
 \end{figure}
 
-\subsection{Manifolds, Diagnostics, and Screening}
+\subsection{Diagnostics and Screening}
 \label{sec:diagnostics_and_screening}
 
 To assess representation quality, classification discrimination, statistical uncertainty, and practical candidate discovery:
@@ -489,8 +480,8 @@ To assess representation quality, classification discrimination, statistical unc
     \begin{subfigure}[b]{0.485\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/latent_manifold_umap.png}
-        \caption{Latent Representation Manifold (UMAP)}
-        \label{fig:umap_manifold}
+        \caption{Learned Representation Map (UMAP)}
+        \label{fig:umap_representation}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.485\textwidth}
@@ -639,58 +630,54 @@ J.~M.~D. Coey, \emph{Magnetism and Magnetic Materials}, Cambridge University Pre
 \section{Physical Feature Formulations}
 \label{sec:appendix_physics}
 
-This appendix provides the formal equations for the physics-guided descriptors described in Section~\ref{sec:physics_descriptors}.
+This appendix provides concise mathematical formulations for the domain descriptors listed in Table~\ref{tab:provenance}.
 
-\subsection{Goodenough-Kanamori Superexchange}
-In transition metal oxides, sulfides, and pnictides, indirect exchange between magnetic cations ($M$) mediated by non-magnetic anions ($X$) follows Goodenough-Kanamori rules. The transfer factor models the competition between ferromagnetic direct exchange and antiferromagnetic superexchange:
+\vspace{0.2cm}
+\noindent\textbf{Goodenough-Kanamori Superexchange:} Cation-anion-cation exchange coupling is parameterized as:
 \begin{equation}
     J_{\text{ex}} \propto \cos^2\theta \cdot \exp\left( - \frac{|\chi_{\text{cat}} - \chi_{\text{anion}}|}{\chi_0} \right)
 \end{equation}
-where $\theta$ is the $M\text{--}X\text{--}M$ bond angle, $\chi_{\text{cat}}$ and $\chi_{\text{anion}}$ denote Pauling electronegativities, and $\chi_0$ is a characteristic scaling parameter ($\chi_0 \approx 1.5$). When $\theta \approx 180^\circ$, strong antiferromagnetic superexchange dominates; near $90^\circ$, ferromagnetic direct exchange is favored.
+where $\theta$ is the bond angle, $\chi_{\text{cat}}$ and $\chi_{\text{anion}}$ are Pauling electronegativities, and $\chi_0 \approx 1.5$. Antiferromagnetic superexchange dominates near $180^\circ$, while ferromagnetic direct exchange is favored near $90^\circ$.
 
-\subsection{Dzyaloshinskii-Moriya Interaction (DMI) Proxy}
-In non-centrosymmetric space groups containing elements with strong spin-orbit coupling, the broken inversion symmetry introduces an antisymmetric exchange interaction (DMI) that induces chiral spin canting:
+\vspace{0.2cm}
+\noindent\textbf{Dzyaloshinskii-Moriya Interaction (DMI) Proxy:} Antisymmetric exchange in non-centrosymmetric crystals with heavy elements is modeled by:
 \begin{equation}
     D_{\text{proxy}} = \mathbb{I}(\text{non-centrosymmetric}) \sum_{i} x_i \left( \frac{Z_i}{100} \right)^4 \cdot \mathbb{I}(Z_i \ge 40)
 \end{equation}
-where $\mathbb{I}(\cdot)$ is an indicator function (equal to 1 if the condition holds, 0 otherwise), $x_i$ is the atomic fraction of element $i$, and $Z_i$ is its atomic number. The fourth-power dependence reflects the relativistic scaling of spin-orbit coupling ($\lambda_{\text{SOC}} \propto Z^4$).
+where $\mathbb{I}(\cdot)$ is the indicator function, $x_i$ is atomic fraction, and $Z_i^4$ reflects relativistic spin-orbit coupling scaling ($\lambda_{\text{SOC}} \propto Z^4$).
 
-\subsection{Crystal Field and Stevens Operator Hamiltonian}
-In uniaxial crystallographic systems (tetragonal, hexagonal, and trigonal), the first-order magnetocrystalline anisotropy constant $K_1$ arises primarily from single-ion crystal field interactions:
+\vspace{0.2cm}
+\noindent\textbf{Crystal Field and Stevens Operator Equivalent:} Uniaxial anisotropy ($K_1$) arising from single-ion crystal fields is parameterized by:
 \begin{equation}
-    \mathcal{H}_{\text{CF}} = B_2^0 O_2^0 + B_4^0 O_4^0
+    \mathcal{H}_{\text{CF}} = B_2^0 O_2^0 + B_4^0 O_4^0, \qquad O_2^0 = 3 J_z^2 - J(J+1)
 \end{equation}
-where $B_n^m$ are crystal-field parameters and $O_n^m$ are Stevens operator equivalents. The second-order operator is defined by:
-\begin{equation}
-    O_2^0 = 3 J_z^2 - J(J+1)
-\end{equation}
-where $J$ is the total angular momentum quantum number. The sign of the second-order Stevens factor $\alpha_J$ dictates whether the single-ion interaction favors an easy axis ($\alpha_J < 0$, uniaxial anisotropy $K_1 > 0$) or an easy plane ($\alpha_J > 0$).
+where $B_n^m$ are crystal-field parameters and $J$ is total angular momentum. A negative Stevens factor ($\alpha_J < 0$) favors easy-axis anisotropy ($K_1 > 0$), while $\alpha_J > 0$ favors an easy plane.
 
-\clearpage
+\vspace{0.4cm}
 \section{MagFormer Architecture Details}
 \label{sec:appendix_magformer}
 
-This appendix provides the network equations for the MagFormer composition graph transformer described in Section~\ref{sec:magformer_architecture}.
+This appendix outlines the network equations for the MagFormer composition graph transformer.
 
-\subsection{Node Initialization and Projection}
-Each constituent element $i$ in a chemical formula is embedded through a combination of discrete atomic number embeddings and normalized elemental physical features:
+\vspace{0.2cm}
+\noindent\textbf{Node Initialization:} Each element $i$ in a chemical formula is initialized via:
 \begin{equation}
     \mathbf{h}_i^{(0)} = \mathbf{W}_{\text{node}} \left[ \mathbf{e}_{Z_i} \;\parallel\; x_i \;\parallel\; \mathbf{p}_i \right]
 \end{equation}
-where $\mathbf{e}_{Z_i} \in \mathbb{R}^{64}$ is a learned element embedding vector, $x_i \in (0, 1]$ is the atomic fraction, and $\mathbf{p}_i$ is a normalized vector of elemental physical properties (electronegativity, covalent radius, valence, and Stoner parameter).
+where $\mathbf{e}_{Z_i} \in \mathbb{R}^{64}$ is an element embedding, $x_i$ is the atomic fraction, and $\mathbf{p}_i$ contains normalized elemental features (electronegativity, covalent radius, valence, Stoner parameter).
 
-\subsection{Pair-Bias Self-Attention}
-Constituent elements interact via multi-head self-attention modulated by a learned pairwise relational bias matrix $\mathbf{B}_{ij}$:
+\vspace{0.2cm}
+\noindent\textbf{Pair-Bias Self-Attention:} Inter-element relations are modeled via multi-head self-attention with pairwise relational bias:
 \begin{equation}
     \mathbf{A}_{ij} = \text{softmax} \left( \frac{\mathbf{Q}_i \mathbf{K}_j^T}{\sqrt{d_k}} + \mathbf{B}_{ij} \right) \mathbf{V}_j
 \end{equation}
-where query ($\mathbf{Q}$), key ($\mathbf{K}$), and value ($\mathbf{V}$) projections are computed from $\mathbf{h}_i^{(l)}$. The pairwise bias $\mathbf{B}_{ij}$ is generated by passing elemental feature differences $|\mathbf{p}_i - \mathbf{p}_j|$ through a two-layer multi-layer perceptron.
+where $\mathbf{Q}_i, \mathbf{K}_j, \mathbf{V}_j$ are linear projections of $\mathbf{h}^{(l)}$, and the relational bias $\mathbf{B}_{ij} = \text{MLP}(|\mathbf{p}_i - \mathbf{p}_j|)$ captures pairwise elemental differences.
 
-\subsection{Leakage-Free Composition Pooling}
-To aggregate the multi-element representations into a fixed-length composition vector without leaking task-specific targets, MagFormer uses a composite pooling operation combining fraction-weighted sums, masked maximums, and global means:
+\vspace{0.2cm}
+\noindent\textbf{Composition Pooling:} A fixed 384-dimensional representation is pooled across the $N$ constituent elements:
 \begin{equation}
     \mathbf{z}_{\text{comp}} = \left[ \sum_{i=1}^N x_i \mathbf{h}_i^{(L)} \;\parallel\; \max_{i=1 \dots N} \mathbf{h}_i^{(L)} \;\parallel\; \frac{1}{N}\sum_{i=1}^N \mathbf{h}_i^{(L)} \right] \in \mathbb{R}^{384}
 \end{equation}
-where $L$ is the final transformer layer and $N$ is the number of elements in the formula. The resulting 384-dimensional representation encodes complex non-linear chemical interactions and is supplied as an input to the tabular ensemble models.
+combining fraction-weighted, max, and mean pooling without task-specific target leakage.
 
 \end{document}
