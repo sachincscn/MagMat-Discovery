@@ -315,10 +315,13 @@ fallback path should not be read as physical values.
 ## 7. Installation and usage
 
 ```bash
-pip install numpy pandas scipy scikit-learn lightgbm xgboost catboost pymatgen matminer torch
+pip install numpy pandas scipy scikit-learn lightgbm xgboost catboost pymatgen matminer torch streamlit plotly
 ```
 
 ```bash
+# Launch interactive Streamlit Web Platform
+streamlit run app/main.py
+
 # Full pipeline at manuscript capacity
 MAGPIPE_MODE=final_manuscript python run_pipeline.py --stage all
 
@@ -339,7 +342,11 @@ python run_pipeline.py --predict "Nd2Fe14B"
 ## 8. Repository layout
 
 ```
-ML_pipeline/
+MagMat-Discovery/
+├── app/                         # Interactive Streamlit Discovery & Analysis Platform
+│   ├── main.py                  # Web application entrypoint
+│   ├── data.py                  # High-performance caching & screening loader
+│   └── theme.py                 # Modern CSS and responsive chart styling
 ├── run_pipeline.py              # CLI orchestrator
 ├── benchmark_targets.py         # representation benchmark → output/benchmarks/
 ├── src/
@@ -360,7 +367,7 @@ ML_pipeline/
 │   └── utils.py                 # constants, palettes, plotting
 ├── Dataset/                     # experimental datasets & MP crystal data
 ├── output/                      # features, models, predictions, benchmarks
-└── plots/                       # figures
+└── plots/                       # 16 publication figures (Curie, Néel, UMAP, etc.)
 ```
 
 ---
