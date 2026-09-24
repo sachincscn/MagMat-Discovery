@@ -60,3 +60,11 @@ output/featurization/features_master.csv
 *.pkl.bak
 *.zip
 *.tar.gz
+
+# LaTeX build artifacts
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
