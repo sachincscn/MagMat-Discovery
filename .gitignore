@@ -68,3 +68,7 @@ output/featurization/features_master.csv
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+# Local Streamlit App Output Cache
+app/output/
+

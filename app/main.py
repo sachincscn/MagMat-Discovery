@@ -53,6 +53,11 @@ st.markdown("""
 <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0 0.8rem 0;border-bottom:1px solid rgba(255,255,255,0.14);margin-bottom:1.0rem;">
   <div style="display:flex;align-items:baseline;gap:1.2rem;flex-wrap:wrap;">
     <span style="font-size:2.55rem;font-weight:950;background:linear-gradient(135deg, #FFFFFF 0%, #38BDF8 50%, #00F59B 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.035em;">MagMat Discovery</span>
+    <span style="font-size:1.15rem;font-weight:700;color:#94A3B8;">Advanced Multi-Task Machine Learning Platform</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.6rem;">
+    <span style="background:rgba(56,189,248,0.15);border:1.2px solid #38BDF8;color:#38BDF8;padding:0.25rem 0.65rem;border-radius:6px;font-size:0.82rem;font-weight:800;">DISCOVERY PLATFORM</span>
+    <span style="background:rgba(0,245,155,0.15);border:1.2px solid #00F59B;color:#00F59B;padding:0.25rem 0.65rem;border-radius:6px;font-size:0.82rem;font-weight:800;">CONCEPT STUDIO IN APP/</span>
   </div>
 </div>
 """, unsafe_allow_html=True)

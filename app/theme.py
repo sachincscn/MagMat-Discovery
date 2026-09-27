@@ -179,7 +179,7 @@ p, span, label, div {
     right: 0;
     height: 4px;
     background: var(--accent-bar, #FF6B00);
-    box-shadow: 0 0 10px var(--accent-bar, #FF6B00);
+    box-shadow: none;
 }
 .metric-card .k {
     font-size: 0.78rem;
@@ -199,7 +199,7 @@ p, span, label, div {
     line-height: 1.1;
     color: var(--accent-bar, #FFFFFF);
     margin-bottom: 0.20rem;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    text-shadow: none;
 }
 .metric-card .u {
     font-size: 0.82rem;
@@ -583,11 +583,19 @@ p, span, label, div {
 }
 .metric-card {
     background: #FFFFFF !important;
-    border: 1px solid #E2E8F0 !important;
-    box-shadow: 0 6px 18px -2px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1.0) !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05) !important;
+}
+.metric-card::before {
+    box-shadow: none !important;
 }
 .metric-card .k {
     color: #475569 !important;
+    font-weight: 850 !important;
+}
+.metric-card .v {
+    text-shadow: none !important;
+    font-weight: 950 !important;
 }
 .metric-card .meta {
     color: #334155 !important;
@@ -643,6 +651,69 @@ CSS_HYBRID_OVERRIDE = """
 html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .stApp {
     background: #F1F5F9 !important;
     color: #0F172A !important;
+}
+
+/* Universal High Contrast for Text & Headings on Light Canvas */
+p, span, label, div, [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] span {
+    color: #0F172A;
+}
+.sec-header {
+    border-bottom: 2.5px solid #CBD5E1 !important;
+}
+.sec-title {
+    color: #0F172A !important;
+    font-size: 1.15rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.03em !important;
+}
+.sec-tag {
+    color: #B45309 !important;
+    font-weight: 900 !important;
+}
+.stCaption, [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+    color: #475569 !important;
+    font-weight: 750 !important;
+    font-size: 0.90rem !important;
+}
+.metric-card {
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.metric-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px -2px rgba(0, 0, 0, 0.10) !important;
+}
+.metric-card::before {
+    box-shadow: none !important;
+}
+.metric-card .k, .metric-card .k span {
+    color: #475569 !important;
+    font-size: 0.82rem !important;
+    font-weight: 850 !important;
+    letter-spacing: 0.03em !important;
+}
+.metric-card .v {
+    text-shadow: none !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.15 !important;
+}
+.metric-card .u {
+    color: #64748B !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+}
+.metric-card .meta {
+    color: #334155 !important;
+    font-size: 0.86rem !important;
+    line-height: 1.45 !important;
+    font-weight: 550 !important;
+    border-top: 1.5px solid #E2E8F0 !important;
+    padding-top: 0.45rem !important;
+    margin-top: 0.45rem !important;
 }
 
 /* ── White Physical Cards for Bordered Containers on Light Canvas ── */
@@ -924,6 +995,37 @@ div[data-testid="stColumn"]:has(.magmat-input-marker) .stButton button:hover {
     transform: translateY(-1px) !important;
 }
 
+/* Universal High-Contrast Download Buttons across Hybrid Mode */
+.stDownloadButton button,
+div[data-testid="stDownloadButton"] button {
+    background: #0F172A !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    min-height: 48px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+    transition: all 0.15s ease !important;
+}
+.stDownloadButton button *,
+.stDownloadButton button p,
+.stDownloadButton button span,
+.stDownloadButton button div,
+div[data-testid="stDownloadButton"] button * {
+    color: #FFFFFF !important;
+    font-weight: 850 !important;
+    font-size: 1.02rem !important;
+}
+.stDownloadButton button:hover,
+div[data-testid="stDownloadButton"] button:hover {
+    background: #1E293B !important;
+    border-color: #0284C7 !important;
+}
+.stDownloadButton button:hover *,
+.stDownloadButton button:hover p,
+.stDownloadButton button:hover span,
+div[data-testid="stDownloadButton"] button:hover * {
+    color: #38BDF8 !important;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
    RIGHT OUTPUT PANEL (Luxurious Elevated Dark Card)
    ══════════════════════════════════════════════════════════════════════ */
@@ -1054,10 +1156,10 @@ td {
 
 def get_plot_layout(theme_mode: str = "Hybrid (Dark & Light)"):
     """Return Plotly layout settings matching the active theme mode."""
-    if theme_mode == "Crisp Light":
+    if theme_mode in ("Crisp Light", "Hybrid (Dark & Light)"):
         return dict(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="#FFFFFF",
+            paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#F8FAFC",
             font=dict(family="Inter, system-ui, sans-serif", size=13, color="#0F172A"),
             margin=dict(l=16, r=16, t=32, b=16),
             hoverlabel=dict(
@@ -1070,7 +1172,7 @@ def get_plot_layout(theme_mode: str = "Hybrid (Dark & Light)"):
             legend=dict(
                 orientation="h", yanchor="bottom", y=1.02, x=0,
                 font=dict(size=12, family="Inter, sans-serif", color="#0F172A"),
-                bgcolor="rgba(0,0,0,0)"
+                bgcolor="rgba(255, 255, 255, 0.90)"
             ),
         )
     return PLOT_LAYOUT
@@ -1115,8 +1217,8 @@ def metric_card(label: str, value: str, unit: str = "",
     """Generate HTML for an elevated high-contrast metric tile with thick numbers, UQ, and conformal intervals."""
     b_html = f'<span style="font-size:0.80rem;font-weight:900;color:{accent}">{status_badge}</span>' if status_badge else ""
     meta_html = f'<div class="meta">{meta}</div>' if meta else ""
-    unc_html = f' <span style="font-size:0.92rem;font-weight:600;color:#94A3B8;letter-spacing:0;">± {uncertainty}</span>' if uncertainty else ""
-    ci_html = f'<div style="font-size:0.78rem;font-weight:800;color:#38BDF8;margin-top:0.30rem;letter-spacing:0.01em;">{conformal_ci}</div>' if conformal_ci else ""
+    unc_html = f' <span style="font-size:0.92rem;font-weight:700;color:#475569;letter-spacing:0;">± {uncertainty}</span>' if uncertainty else ""
+    ci_html = f'<div style="font-size:0.80rem;font-weight:850;color:#0284C7;margin-top:0.30rem;letter-spacing:0.01em;">{conformal_ci}</div>' if conformal_ci else ""
     v_style = f"color:{accent};"
     if len(str(value)) >= 8 or "–" in str(value):
         v_style += "font-size:1.62rem;letter-spacing:-0.02em;"

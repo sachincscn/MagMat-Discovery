@@ -804,41 +804,41 @@ def make_hysteresis_fig(ms_tesla: float = 1.4, hc_ka_m: float = 600.0, kappa: fl
             line=dict(color="#FFB703", dash="dot", width=2)
         ))
 
-    fig.add_vline(x=-hc, line_dash="dash", line_color="rgba(255, 51, 102, 0.45)")
-    fig.add_vline(x=hc, line_dash="dash", line_color="#FF3366",
-                  annotation_text=f"+Hc: {hc:.0f} kA/m", annotation_position="bottom right", annotation_font_color="#FF3366")
-    fig.add_hline(y=-ms, line_dash="dot", line_color="rgba(0, 245, 155, 0.45)")
-    fig.add_hline(y=ms, line_dash="dot", line_color="#00F59B",
-                  annotation_text=f"Ms: {ms:.2f} T", annotation_position="top left", annotation_font_color="#00F59B")
+    fig.add_vline(x=-hc, line_dash="dash", line_color="rgba(220, 38, 38, 0.45)")
+    fig.add_vline(x=hc, line_dash="dash", line_color="#DC2626",
+                  annotation_text=f"+Hc: {hc:.0f} kA/m", annotation_position="bottom right", annotation_font_color="#DC2626")
+    fig.add_hline(y=-ms, line_dash="dot", line_color="rgba(5, 150, 105, 0.45)")
+    fig.add_hline(y=ms, line_dash="dot", line_color="#059669",
+                  annotation_text=f"Ms: {ms:.2f} T", annotation_position="top left", annotation_font_color="#059669")
 
     fig.update_layout(
         title="",
         xaxis=dict(
-            title=dict(text="<b>Applied Magnetic Field H (kA/m)</b>", font=dict(size=13.5, color="#FFFFFF")),
-            gridcolor="rgba(255, 255, 255, 0.14)",
+            title=dict(text="<b>Applied Magnetic Field H (kA/m)</b>", font=dict(size=13, color="#0F172A")),
+            gridcolor="#CBD5E1",
             zeroline=True,
-            zerolinecolor="rgba(255, 255, 255, 0.28)",
-            linecolor="rgba(255, 255, 255, 0.40)",
-            tickfont=dict(size=12, color="#E2E8F0")
+            zerolinecolor="#94A3B8",
+            linecolor="#64748B",
+            tickfont=dict(size=11, color="#1E293B")
         ),
         yaxis=dict(
-            title=dict(text="<b>Polarization J = μ₀M (Tesla)</b>", font=dict(size=13.5, color="#FFFFFF")),
-            gridcolor="rgba(255, 255, 255, 0.14)",
+            title=dict(text="<b>Polarization J = μ₀M (Tesla)</b>", font=dict(size=13, color="#0F172A")),
+            gridcolor="#CBD5E1",
             zeroline=True,
-            zerolinecolor="rgba(255, 255, 255, 0.28)",
-            linecolor="rgba(255, 255, 255, 0.40)",
-            tickfont=dict(size=12, color="#E2E8F0")
+            zerolinecolor="#94A3B8",
+            linecolor="#64748B",
+            tickfont=dict(size=11, color="#1E293B")
         ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(15, 23, 42, 0.90)",
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#F8FAFC",
         legend=dict(
             orientation="h",
             yanchor="top",
             y=-0.22,
             xanchor="center",
             x=0.5,
-            bgcolor="rgba(0,0,0,0)",
-            font=dict(size=12, color="#CBD5E1")
+            bgcolor="rgba(255, 255, 255, 0.90)",
+            font=dict(size=11, color="#0F172A")
         ),
         margin=dict(l=55, r=25, t=18, b=68),
         height=390
@@ -2124,7 +2124,8 @@ def make_3d_crystal_fig(structure, title: str = "3D Crystal Unit Cell"):
         mode="lines",
         line=dict(color="#475569", width=3.5),
         name="Unit Cell Boundary",
-        hoverinfo="none"
+        hoverinfo="none",
+        showlegend=False
     ))
 
     # Group sites by species
@@ -2217,23 +2218,23 @@ def make_3d_crystal_fig(structure, title: str = "3D Crystal Unit Cell"):
 
     fig.update_layout(
         title=dict(
-            text=f"<b>{title}</b><br><sup>Lattice: a={lat.a:.2f}Å, b={lat.b:.2f}Å, c={lat.c:.2f}Å | α={lat.alpha:.1f}°, β={lat.beta:.1f}°, γ={lat.gamma:.1f}°</sup>",
-            font=dict(color="#FFFFFF", size=14)
+            text=f"<b>{title}</b><br><span style='font-size:12px;color:#334155;font-weight:700;'>Lattice: a = {lat.a:.3f} Å · b = {lat.b:.3f} Å · c = {lat.c:.3f} Å | α = {lat.alpha:.1f}° · β = {lat.beta:.1f}° · γ = {lat.gamma:.1f}° (Vol = {lat.volume:.1f} Å³)</span>",
+            font=dict(color="#0F172A", size=14)
         ),
         scene=dict(
             aspectmode="data",
-            xaxis=dict(title="X (Å)", showgrid=True, gridcolor="#1E293B", zeroline=False, color="#94A3B8"),
-            yaxis=dict(title="Y (Å)", showgrid=True, gridcolor="#1E293B", zeroline=False, color="#94A3B8"),
-            zaxis=dict(title="Z (Å)", showgrid=True, gridcolor="#1E293B", zeroline=False, color="#94A3B8"),
-            bgcolor="#07090E"
+            xaxis=dict(title="X (Å)", showgrid=True, gridcolor="#334155", zeroline=False, color="#94A3B8"),
+            yaxis=dict(title="Y (Å)", showgrid=True, gridcolor="#334155", zeroline=False, color="#94A3B8"),
+            zaxis=dict(title="Z (Å)", showgrid=True, gridcolor="#334155", zeroline=False, color="#94A3B8"),
+            bgcolor="#0B0F17"
         ),
-        paper_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="#FFFFFF",
         height=500,
         margin=dict(l=10, r=10, t=60, b=10),
         legend=dict(
-            font=dict(color="#E2E8F0", size=11),
-            bgcolor="rgba(15,23,42,0.7)",
-            bordercolor="#334155",
+            font=dict(color="#0F172A", size=11, family="Inter, sans-serif"),
+            bgcolor="rgba(255,255,255,0.92)",
+            bordercolor="#CBD5E1",
             borderwidth=1,
             x=0.02, y=0.98
         )

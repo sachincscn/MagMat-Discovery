@@ -44,10 +44,14 @@ cd MagMat-Discovery
 pip install numpy pandas scipy scikit-learn lightgbm xgboost catboost pymatgen matminer torch streamlit plotly
 ```
 
-### 2. Launch Interactive Web App
+### 2. Launch Interactive Web Applications
 
 ```bash
+# Launch MagMat-Discovery (Full Machine Learning Discovery Platform)
 streamlit run app/main.py
+
+# Launch MagMat-Concept (Physics-Grounded Screening & Reality Gap Studio)
+streamlit run app/concept_app.py
 ```
 
 ### 3. Command-Line Inference
