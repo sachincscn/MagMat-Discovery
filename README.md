@@ -100,15 +100,3 @@ MagMat-Discovery/
 ├── output/                      # Evaluated predictions, caches, and benchmarks
 └── run_pipeline.py              # Main orchestrator CLI
 ```
-
----
-
-## Citation
-
-```bibtex
-@article{poudel2026magmat,
-  title={MagMat: Physics-Grounded Screening and Discovery Platform for Permanent Magnets},
-  author={Poudel, Sachin},
-  year={2026}
-}
-```
