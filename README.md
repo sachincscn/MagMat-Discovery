@@ -4,16 +4,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B.svg)](app/main.py)
 
-**MagMat-Discovery** is an end-to-end, physics-informed machine learning framework for magnetic materials discovery and inverse design. Trained on experimental non-equilibrium magnetic data (NEMAD) and integrated with Materials Project crystal structures, it screens alloy compositions for high-performance, rare-earth-free permanent magnets and functional magnetic materials.
+**MagMat-Discovery** is an end-to-end, physics-grounded machine learning framework for magnetic materials discovery and inverse design. Trained on harmonized experimental magnetic records and integrated with crystallographic structures, it evaluates alloy compositions against fundamental condensed-matter boundaries to identify high-performance, rare-earth-free permanent magnets.
 
 ---
 
-## Key Features
+## Key Capabilities
 
-- **Physics-Informed Architecture**: Combines a compositional graph neural network (**MagFormer**) with domain physics descriptors (Slater-Pauling band filling, Goodenough-Kanamori superexchange, Stoner-Wohlfarth limits, and Kronmüller micromagnetic relations).
-- **Multi-Target Prediction**: Jointly models 8 core magnetic targets across phase classification, ordering temperatures, and extrinsic hysteresis properties.
-- **Uncertainty Quantification**: Delivers calibrated uncertainty estimates via conformal prediction quantiles and ensemble spread.
-- **Interactive Web Platform**: Modern Streamlit application with real-time property prediction, candidate screening, latent UMAP manifold exploration, and phase diagrams.
+- **Physics-Grounded Architecture**: Combines a compositional graph neural network (**MagFormer**) with domain physics descriptors (Slater-Pauling band filling, Goodenough-Kanamori superexchange, Stoner criteria, and Kronmüller micromagnetic limits).
+- **Multi-Target Prediction**: Jointly models 8 core magnetic targets across phase classification, ordering temperatures ($T_C, T_N, \theta_p$), and extrinsic hysteresis properties ($M_s, H_c, (BH)_{\max}, K_1$).
+- **Calibrated Uncertainty**: Delivers rigorous conformal prediction intervals and ensemble standard deviations for reliable discovery.
+- **Interactive Web Interfaces**: Streamlit applications offering real-time screening, side-by-side M-H hysteresis tracing, interactive 3D crystal structures, and reality-gap analysis.
 
 ---
 
@@ -47,10 +47,10 @@ pip install numpy pandas scipy scikit-learn lightgbm xgboost catboost pymatgen m
 ### 2. Launch Interactive Web Applications
 
 ```bash
-# Launch MagMat-Discovery (Full Machine Learning Discovery Platform)
+# Option A: Full Multi-Task Discovery Platform
 streamlit run app/main.py
 
-# Launch MagMat-Concept (Physics-Grounded Screening & Reality Gap Studio)
+# Option B: Streamlined 2-Tab Concept Studio (Recommended)
 streamlit run app/concept_app.py
 ```
 
@@ -60,6 +60,7 @@ Predict magnetic phase and all properties for any formula:
 ```bash
 python run_pipeline.py --predict "Nd2Fe14B"
 python run_pipeline.py --predict "Fe16N2"
+python run_pipeline.py --predict "MnAl"
 ```
 
 ### 4. Running the Pipeline
@@ -80,10 +81,11 @@ python run_pipeline.py --stage 6    # Multi-objective permanent magnet screening
 
 ```
 MagMat-Discovery/
-├── app/                         # Interactive Streamlit Discovery Platform
-│   ├── main.py                  # Web application UI
-│   ├── data.py                  # High-performance caching & screening loader
-│   └── theme.py                 # Modern CSS and responsive chart styling
+├── app/                         # Interactive Streamlit Web Applications
+│   ├── concept_app.py           # Streamlined 2-tab screening & reality gap studio
+│   ├── main.py                  # Full multi-task discovery platform
+│   ├── data.py                  # High-performance caching & plotting utilities
+│   └── theme.py                 # Modern CSS and responsive styling
 ├── src/                         # Core machine learning & physics library
 │   ├── composition_gnn.py       # MagFormer compositional GNN architecture
 │   ├── modeling.py              # Multi-model ensembles & conformal calibration
@@ -93,9 +95,9 @@ MagMat-Discovery/
 │   ├── preprocessing.py         # Dataset integration & leakage sanitization
 │   ├── generative_screening.py  # Inverse composition screening engine
 │   └── visualization.py         # Publication figure generators
+├── documentation/               # Technical documentation, LaTeX reports, and figures
 ├── Dataset/                     # Curated experimental and crystal datasets
 ├── output/                      # Evaluated predictions, caches, and benchmarks
-├── plots/                       # Publication figures (Curie, Néel, UMAP, etc.)
 └── run_pipeline.py              # Main orchestrator CLI
 ```
 
@@ -104,10 +106,9 @@ MagMat-Discovery/
 ## Citation
 
 ```bibtex
-@article{nemad2025,
-  title={A non-equilibrium magnetic materials database and machine learning framework for magnetic materials discovery},
-  journal={Nature Communications},
-  year={2025},
-  doi={10.1038/s41467-024-55500-7}
+@article{poudel2026magmat,
+  title={MagMat: Physics-Grounded Screening and Discovery Platform for Permanent Magnets},
+  author={Poudel, Sachin},
+  year={2026}
 }
-```\n
+```
