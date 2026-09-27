@@ -1,6 +1,7 @@
 # Core Framework & Visualization
 streamlit>=1.35.0
 plotly>=5.18.0
+matplotlib>=3.7.0
 
 # Scientific & Numerical Computing
 numpy>=1.24.0,<2.0.0

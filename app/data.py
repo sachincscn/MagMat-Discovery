@@ -455,9 +455,8 @@ def get_engine():
     try:
         from src.generative_screening import GenerativeCrystalScreeningEngine
         path = os.path.join(TRAINING, "trained_models.pkl")
-        if not os.path.exists(path):
-            return None, "trained_models.pkl not found — run stage 4 first."
-        return GenerativeCrystalScreeningEngine(models_path=path), None
+        models_path = path if (os.path.exists(path) and os.path.isfile(path)) else None
+        return GenerativeCrystalScreeningEngine(models_dir=TRAINING, models_path=models_path), None
     except Exception as exc:
         return None, f"{type(exc).__name__}: {exc}"
 

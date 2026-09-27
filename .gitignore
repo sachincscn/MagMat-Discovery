@@ -55,7 +55,8 @@ Thumbs.db
 *.log
 
 # Large binary models & files exceeding GitHub's 100MB limit
-output/training/trained_models.pkl
+output/training/trained_models_full.pkl
+output/training/graph_cache.pkl
 output/featurization/features_master.csv
 *.pkl.bak
 *.zip
