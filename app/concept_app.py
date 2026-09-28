@@ -372,6 +372,47 @@ st.markdown("""
     border-bottom: 4px solid #FF6B00 !important;
 }
 .stTabs [data-baseweb="tab"] p { font-size: 1.35rem !important; font-weight: 900 !important; }
+
+/* Dropdown menus render in a portal outside .stApp, so the app theme does not
+   reach them and the dark base leaves white text on a white sheet. Pin both. */
+div[data-baseweb="popover"] ul[role="listbox"],
+div[data-baseweb="popover"] div[role="listbox"],
+div[data-baseweb="menu"] { background: #FFFFFF !important; }
+div[data-baseweb="popover"] li[role="option"],
+div[data-baseweb="popover"] div[role="option"],
+div[data-baseweb="menu"] li {
+    color: #0F172A !important;
+    background: #FFFFFF !important;
+    font-size: 1.02rem !important;
+    font-weight: 700 !important;
+}
+div[data-baseweb="popover"] li[role="option"]:hover,
+div[data-baseweb="popover"] div[role="option"]:hover,
+div[data-baseweb="popover"] li[aria-selected="true"],
+div[data-baseweb="menu"] li:hover {
+    background: #FFE8D6 !important;
+    color: #0F172A !important;
+}
+
+/* selected element chips */
+[data-testid="stMultiSelect"] [data-baseweb="tag"] { background: #0F172A !important; }
+[data-testid="stMultiSelect"] [data-baseweb="tag"] span,
+[data-testid="stMultiSelect"] [data-baseweb="tag"] div {
+    color: #FFFFFF !important; font-weight: 800 !important; font-size: 0.95rem !important;
+}
+
+/* closed control values and typed text */
+[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+[data-testid="stMultiSelect"] div[data-baseweb="select"] > div,
+[data-testid="stSelectbox"] input,
+[data-testid="stMultiSelect"] input {
+    color: #0F172A !important; font-weight: 700 !important;
+}
+
+/* widget labels */
+[data-testid="stWidgetLabel"] label, [data-testid="stWidgetLabel"] p {
+    color: #1E293B !important; font-weight: 800 !important; font-size: 1.0rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 gap_stats = get_reality_gap_dataset_stats()
@@ -444,16 +485,19 @@ tab_screener, tab_concept = st.tabs([
 # TAB 1: FORWARD SCREENER & PHYSICS BOUNDS
 # =========================================================================
 with tab_screener:
+    # Open on a blank custom formulation so the user enters their own elements
+    # and stoichiometry; the archetypes stay one dropdown away. An empty element
+    # list is handled downstream by the "select at least one element" guard.
     if "comp_elements" not in st.session_state:
-        st.session_state.comp_elements = ["Nd", "Fe", "B"]
+        st.session_state.comp_elements = []
     if "comp_amounts" not in st.session_state:
-        st.session_state.comp_amounts = {"Nd": 2.0, "Fe": 14.0, "B": 1.0}
+        st.session_state.comp_amounts = {}
     if "comp_cs" not in st.session_state:
-        st.session_state.comp_cs = "tetragonal"
+        st.session_state.comp_cs = "Not specified"
     if "comp_sg" not in st.session_state:
-        st.session_state.comp_sg = 136
+        st.session_state.comp_sg = 0
     if "_active_arch" not in st.session_state:
-        st.session_state._active_arch = "Nd2Fe14B"
+        st.session_state._active_arch = "Custom Formulation"
     if "_arch_version" not in st.session_state:
         st.session_state._arch_version = 0
 
