@@ -539,7 +539,7 @@ with st.sidebar:
 # Application Navigation Tabs (2 Tabs Only)
 tab_screener, tab_concept = st.tabs([
     "Forward Screener",
-    "Physics Principles & Reality Gap"
+    "Physics & Reality"
 ])
 
 
@@ -931,9 +931,9 @@ with tab_screener:
                                 border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
                       <div style="font-size:0.85rem;font-weight:850;color:#CBD5E1;letter-spacing:0.05em;text-transform:uppercase;">{t_lab}</div>
                       <div style="font-size:2.25rem;font-weight:950;color:{T.TEMP};line-height:1.15;margin:4px 0;">
-                        {t_ord:,.0f} K <span style="font-size:1.0rem;font-weight:600;color:#CBD5E1;">± {q_tc:.0f} K</span>
+                        {t_ord:,.0f} <span style="font-size:1.1rem;font-weight:800;">K</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:800;color:#E2E8F0;">{t_ord - 273.15:.0f} °C</div>
+                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">{t_ord - 273.15:.0f} °C</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with m2:
@@ -942,9 +942,9 @@ with tab_screener:
                                 border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
                       <div style="font-size:0.85rem;font-weight:850;color:#CBD5E1;letter-spacing:0.05em;text-transform:uppercase;">Saturation μ₀Mₛ</div>
                       <div style="font-size:2.25rem;font-weight:950;color:{T.MOMENT};line-height:1.15;margin:4px 0;">
-                        {ms_t:.2f} T <span style="font-size:1.0rem;font-weight:600;color:#CBD5E1;">± {q_ms:.2f} T</span>
+                        {ms_t:.2f} <span style="font-size:1.1rem;font-weight:800;">T</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:800;color:#E2E8F0;">Ceiling: <b>{sp_ms_t:.2f} T</b> ({sp_pct:.0f}%)</div>
+                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">SP Ceiling: {sp_ms_t:.2f} T</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with m3:
@@ -955,7 +955,7 @@ with tab_screener:
                       <div style="font-size:2.25rem;font-weight:950;color:{T.HARD};line-height:1.15;margin:4px 0;">
                         {hc_ka_m:,.0f} <span style="font-size:1.1rem;font-weight:800;">kA/m</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:800;color:#E2E8F0;">{hc_kOe:.1f} kOe · Realized α = <b>{alpha_realized:.2f}</b></div>
+                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">{hc_kOe:.1f} kOe</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with m4:
@@ -969,7 +969,7 @@ with tab_screener:
                       <div style="font-size:2.25rem;font-weight:950;color:{T.ACCENT};line-height:1.15;margin:4px 0;">
                         {bh_max_kj:.0f} <span style="font-size:1.1rem;font-weight:800;">kJ/m³</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:800;color:#E2E8F0;">{bh_max_kj / 7.96:.1f} MGOe · Limit <b>{bh_max_ceiling:.0f} kJ/m³</b></div>
+                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">{bh_max_kj / 7.96:.1f} MGOe</div>
                     </div>
                     """, unsafe_allow_html=True)
 
