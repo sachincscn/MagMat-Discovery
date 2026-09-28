@@ -2173,6 +2173,9 @@ def make_3d_crystal_fig(structure, title: str = "3D Crystal Unit Cell"):
 
     # 3D Quantum Spin Vectors (MSN Layer)
     if has_mag:
+        # Mean lattice parameter drives spin-arrow and arrowhead size below.
+        _cell_scale = max(2.5, (lat.a + lat.b + lat.c) / 3.0)
+
         spin_line_x, spin_line_y, spin_line_z = [], [], []
         spin_arrow_x, spin_arrow_y, spin_arrow_z = [], [], []
         spin_arrow_u, spin_arrow_v, spin_arrow_w = [], [], []
@@ -2182,7 +2185,9 @@ def make_3d_crystal_fig(structure, title: str = "3D Crystal Unit Cell"):
                 mv = float(mag_props[i])
                 if abs(mv) > 0.05:
                     x0, y0, z0 = site.coords[0], site.coords[1], site.coords[2]
-                    arrow_len = 0.85 + min(0.9, abs(mv) / 6.0)
+                    # Scale the arrow with the cell so it reads the same on a
+                    # 3 A cell and a 12 A one, instead of swamping the small ones.
+                    arrow_len = _cell_scale * (0.16 + min(0.10, abs(mv) / 45.0))
                     dz = arrow_len if mv > 0 else -arrow_len
                     spin_line_x.extend([x0, x0, None])
                     spin_line_y.extend([y0, y0, None])
@@ -2207,7 +2212,10 @@ def make_3d_crystal_fig(structure, title: str = "3D Crystal Unit Cell"):
                 x=spin_arrow_x, y=spin_arrow_y, z=spin_arrow_z,
                 u=spin_arrow_u, v=spin_arrow_v, w=spin_arrow_w,
                 sizemode="absolute",
-                sizeref=0.45,
+                # Arrowheads were fixed at 0.45, which on a ~6 A cell rendered
+                # cones wider than the atoms and inflated the scene bounding box
+                # so much that the cell filled under half the view.
+                sizeref=max(0.05, min(0.30, 0.02 * _cell_scale)),
                 anchor="tip",
                 colorscale=[[0, "#38BDF8"], [1, "#00F59B"]],
                 showscale=False,
