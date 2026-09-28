@@ -4,7 +4,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-import seaborn as sns
 import numpy as np
 
 # ── Publication-grade Color Palette ───────────────────────────────────────────
@@ -142,7 +141,10 @@ def setup_plotting_style():
         'ps.fonttype':           42,
     })
 
-    # Set seaborn theme to whitegrid (compatible with our rcParams)
+    # Seaborn is only needed for figure styling, and only the offline plotting
+    # pipeline calls this. Importing it lazily keeps the Streamlit app - which
+    # imports this module purely for the element constants - free of it.
+    import seaborn as sns
     sns.set_theme(style='ticks', context='talk', font_scale=1.2)
     sns.set_palette(CAT_PALETTE)
 
