@@ -560,7 +560,8 @@ def reset_formulation():
                 or k in ("input_csys",)):
             del st.session_state[k]
     st.session_state.comp_elements = list(DEFAULT_ELEMENTS)
-    st.session_state.comp_amounts = {el: 1.0 for el in DEFAULT_ELEMENTS}
+    n_def = len(DEFAULT_ELEMENTS)
+    st.session_state.comp_amounts = {el: round(1.0 / n_def, 3) for el in DEFAULT_ELEMENTS}
     st.session_state.comp_cs = "Not specified"
     st.session_state.comp_sg = 0
     st.session_state._active_arch = "Custom Formulation"
@@ -577,7 +578,8 @@ with tab_screener:
     if "comp_elements" not in st.session_state:
         st.session_state.comp_elements = list(DEFAULT_ELEMENTS)
     if "comp_amounts" not in st.session_state:
-        st.session_state.comp_amounts = {el: 1.0 for el in DEFAULT_ELEMENTS}
+        _n = len(st.session_state.comp_elements)
+        st.session_state.comp_amounts = {el: round(1.0 / _n, 3) for el in st.session_state.comp_elements}
     if "comp_cs" not in st.session_state:
         st.session_state.comp_cs = "Not specified"
     if "comp_sg" not in st.session_state:
@@ -616,12 +618,15 @@ with tab_screener:
             st.session_state._active_arch = sel
             if sel in D.ARCHETYPES:
                 arch_meta = D.ARCHETYPES[sel]
-                st.session_state.comp_elements = list(arch_meta["amounts"].keys())
-                st.session_state.comp_amounts = dict(arch_meta["amounts"])
+                raw_amts = dict(arch_meta["amounts"])
+                # normalize to mole fractions summing to 1
+                _tot = sum(raw_amts.values()) or 1.0
+                st.session_state.comp_elements = list(raw_amts.keys())
+                st.session_state.comp_amounts = {el: round(v_ / _tot, 4) for el, v_ in raw_amts.items()}
                 st.session_state.comp_cs = arch_meta["crystal_system"]
                 st.session_state.comp_sg = arch_meta["space_group"]
                 st.session_state.input_csys = arch_meta["crystal_system"]
-                st.session_state.n_elements = max(1, min(6, len(arch_meta["amounts"])))
+                st.session_state.n_elements = max(1, min(6, len(raw_amts)))
                 for k in list(st.session_state.keys()):
                     if (k.startswith("amt_slot_") or k.startswith("el_sel_")
                             or k.startswith("input_sg_")):
@@ -661,8 +666,9 @@ with tab_screener:
                         if el not in cur:
                             cur.append(el)
                 st.session_state.comp_elements = cur
-                st.session_state.comp_amounts = {
-                    el: st.session_state.comp_amounts.get(el, 1.0) for el in cur}
+                # Redistribute equally so fractions sum to 1
+                eq = round(1.0 / len(cur), 4) if cur else 1.0
+                st.session_state.comp_amounts = {el: eq for el in cur}
                 for k in list(st.session_state.keys()):
                     if k.startswith("el_sel_") or k.startswith("amt_slot_"):
                         del st.session_state[k]
@@ -698,20 +704,46 @@ with tab_screener:
             cur = list(st.session_state.comp_elements)
             if idx >= len(cur) or new_el == cur[idx]:
                 return
-            # carry the slot's amount across to the newly chosen element
-            amt = st.session_state.comp_amounts.pop(cur[idx], 1.0)
+            # carry the slot's fraction across to the newly chosen element
+            amt = st.session_state.comp_amounts.pop(cur[idx], 1.0 / len(cur))
             cur[idx] = new_el
             st.session_state.comp_elements = cur
             st.session_state.comp_amounts[new_el] = amt
+            # renormalize so sum stays 1
+            _tot = sum(st.session_state.comp_amounts.get(e, 0) for e in cur) or 1.0
+            st.session_state.comp_amounts = {e: round(st.session_state.comp_amounts.get(e, 0) / _tot, 4) for e in cur}
             _mark_custom()
 
         def on_slot_amount_change(idx):
             cur = st.session_state.comp_elements
-            if idx < len(cur):
-                st.session_state.comp_amounts[cur[idx]] = float(
-                    st.session_state.get(f"amt_slot_{idx}", 1.0))
-                _mark_custom()
-
+            if idx >= len(cur):
+                return
+            # Read the new raw value the user typed
+            new_val = float(st.session_state.get(f"amt_slot_{idx}", 1.0 / len(cur)))
+            new_val = max(0.001, min(0.999, new_val))
+            # Distribute the remainder proportionally among the other slots
+            others = [e for j, e in enumerate(cur) if j != idx]
+            other_total = sum(st.session_state.comp_amounts.get(e, 0) for e in others)
+            remainder = max(0.0, 1.0 - new_val)
+            if others:
+                if other_total > 0:
+                    scale = remainder / other_total
+                    for e in others:
+                        st.session_state.comp_amounts[e] = round(
+                            st.session_state.comp_amounts.get(e, 0) * scale, 4)
+                else:
+                    eq = round(remainder / len(others), 4)
+                    for e in others:
+                        st.session_state.comp_amounts[e] = eq
+            st.session_state.comp_amounts[cur[idx]] = round(new_val, 4)
+            # Final safety renormalize to fix any floating point drift
+            _tot = sum(st.session_state.comp_amounts.get(e, 0) for e in cur) or 1.0
+            st.session_state.comp_amounts = {e: round(st.session_state.comp_amounts.get(e, 0) / _tot, 4) for e in cur}
+            # Clear widget keys so they redraw with the normalized values
+            for k in list(st.session_state.keys()):
+                if k.startswith("amt_slot_"):
+                    del st.session_state[k]
+            _mark_custom()
 
 
         if not st.session_state.comp_elements:
@@ -722,8 +754,12 @@ with tab_screener:
             perr = "No elements selected."
         else:
             elements_now = list(st.session_state.comp_elements)
-            tot_amt = sum(st.session_state.comp_amounts.get(e, 0.0)
-                          for e in elements_now) or 1.0
+            # Ensure comp_amounts is normalized (safety check)
+            _tot_now = sum(st.session_state.comp_amounts.get(e, 0.0) for e in elements_now) or 1.0
+            if abs(_tot_now - 1.0) > 0.01:
+                st.session_state.comp_amounts = {
+                    e: round(st.session_state.comp_amounts.get(e, 0.0) / _tot_now, 4)
+                    for e in elements_now}
 
             for i, el in enumerate(elements_now):
                 # an element already used in another slot is not offered here,
@@ -736,18 +772,15 @@ with tab_screener:
                     st.session_state[f"el_sel_{i}"] = el
                 if f"amt_slot_{i}" not in st.session_state:
                     st.session_state[f"amt_slot_{i}"] = float(
-                        st.session_state.comp_amounts.get(el, 1.0))
-
-                cur_amt = float(st.session_state.comp_amounts.get(el, 1.0))
-                at_pct = (cur_amt / tot_amt) * 100.0 if tot_amt > 0 else 0.0
+                        st.session_state.comp_amounts.get(el, round(1.0 / len(elements_now), 4)))
 
                 c_el, c_amt = st.columns([1.15, 1], gap="small")
                 c_el.selectbox(f"Element {i + 1}", opts, key=f"el_sel_{i}",
                                on_change=on_slot_element_change, args=(i,),
                                label_visibility="collapsed")
-                c_amt.number_input(f"Amount {i + 1} ({at_pct:.1f}%)",
-                                   min_value=0.01, max_value=999.0, step=0.1,
-                                   format="%.2f", key=f"amt_slot_{i}",
+                c_amt.number_input(f"x_{i}",
+                                   min_value=0.001, max_value=0.999, step=0.001,
+                                   format="%.3f", key=f"amt_slot_{i}",
                                    on_change=on_slot_amount_change, args=(i,),
                                    label_visibility="collapsed")
 
