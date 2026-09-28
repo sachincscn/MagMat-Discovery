@@ -352,15 +352,71 @@ st.set_page_config(
 )
 
 T.inject("Hybrid (Dark & Light)")
+
+# Larger, higher-contrast navigation tabs (overrides the theme defaults).
+st.markdown("""
+<style>
+.stTabs [data-baseweb="tab-list"] { gap: 0.6rem; border-bottom: 2px solid #CBD5E1; }
+.stTabs [data-baseweb="tab"] {
+    font-size: 1.35rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.015em;
+    color: #64748B !important;
+    padding: 0.85rem 1.6rem !important;
+    border-radius: 10px 10px 0 0;
+}
+.stTabs [data-baseweb="tab"]:hover { color: #0F172A !important; background: rgba(2,132,199,0.07); }
+.stTabs [aria-selected="true"] {
+    color: #0F172A !important;
+    background: rgba(255,107,0,0.10);
+    border-bottom: 4px solid #FF6B00 !important;
+}
+.stTabs [data-baseweb="tab"] p { font-size: 1.35rem !important; font-weight: 900 !important; }
+</style>
+""", unsafe_allow_html=True)
 gap_stats = get_reality_gap_dataset_stats()
 ALPHA_MEDIAN = gap_stats["alpha_median"]
+
+
+
+def orbit_crystal(fig, n_frames: int = 60, radius: float = 1.85, height: float = 0.72):
+    """Add a camera orbit around the unit cell.
+
+    The frames carry only a layout change (scene.camera.eye), so the geometry is
+    never re-sent; Plotly needs redraw=True for a 3D scene to pick the new camera
+    up. Streamlit cannot autoplay, so this is wired to a button.
+    """
+    try:
+        frames = []
+        for k in range(n_frames):
+            a = 2.0 * math.pi * k / n_frames
+            frames.append(go.Frame(
+                name=str(k),
+                layout=dict(scene=dict(camera=dict(
+                    eye=dict(x=radius * math.cos(a),
+                             y=radius * math.sin(a),
+                             z=height))))))
+        fig.frames = frames
+        fig.update_layout(
+            scene_camera=dict(eye=dict(x=radius, y=0.0, z=height)),
+            updatemenus=[dict(
+                type="buttons", showactive=False,
+                x=0.99, y=0.99, xanchor="right", yanchor="top",
+                bgcolor="rgba(255,107,0,0.16)", bordercolor="#FF6B00", borderwidth=1,
+                font=dict(color="#FF6B00", size=12),
+                buttons=[dict(label="Rotate", method="animate",
+                              args=[None, dict(frame=dict(duration=70, redraw=True),
+                                               transition=dict(duration=0),
+                                               fromcurrent=True, mode="immediate")])])])
+    except Exception:
+        return fig
+    return fig
 
 # Header Banner (Clean, No Ceilings Badge)
 st.markdown("""
 <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0 0.8rem 0;border-bottom:1.5px solid #CBD5E1;margin-bottom:1.0rem;">
   <div style="display:flex;align-items:baseline;gap:1.2rem;flex-wrap:wrap;">
     <span style="font-size:2.55rem;font-weight:950;background:linear-gradient(135deg, #0F172A 0%, #0284C7 50%, #059669 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.035em;">MagMat</span>
-    <span style="font-size:1.15rem;font-weight:800;color:#334155;">Physics-Grounded Screening & Discovery</span>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -810,6 +866,7 @@ with tab_screener:
                         if getattr(trace, "name", "") == "Unit Cell Boundary":
                             trace.showlegend = False
                     fig_3d.update_layout(title="", height=355, margin=dict(l=10, r=10, t=10, b=15))
+                    fig_3d = orbit_crystal(fig_3d)
                     st.plotly_chart(fig_3d, width="stretch", config={"displayModeBar": False})
 
                     cif_content = dao_res.get('magnetic_cif') or dao_res.get('cif', '')
