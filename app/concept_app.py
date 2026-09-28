@@ -587,7 +587,7 @@ with tab_screener:
     if "_arch_version" not in st.session_state:
         st.session_state._arch_version = 0
 
-    col_input, col_display = st.columns([1.14, 2.16], gap="large")
+    col_input, col_display = st.columns([0.82, 2.48], gap="large")
 
     with col_input:
         head_l, head_r = st.columns([2.9, 1])
@@ -712,10 +712,7 @@ with tab_screener:
                     st.session_state.get(f"amt_slot_{idx}", 1.0))
                 _mark_custom()
 
-        st.markdown(
-            '<div style="font-size:1.0rem;font-weight:800;color:#1E293B;'
-            'margin-bottom:0.25rem;">Constituent Elements</div>',
-            unsafe_allow_html=True)
+
 
         if not st.session_state.comp_elements:
             st.warning("Please select at least one constituent element.")
@@ -925,51 +922,83 @@ with tab_screener:
                 bh_eff = (bh_max_kj / bh_max_ceiling * 100.0) if bh_max_ceiling > 0 else 0.0
 
                 m1, m2, m3, m4 = st.columns(4, gap="medium")
+
+                # helper: render a thin probabilistic range bar
+                # fill% = centre position of mean within [lo, hi] window
+                def _range_bar(lo, val, hi, color):
+                    span = max(hi - lo, 1e-9)
+                    fill = min(100, max(0, ((val - lo) / span) * 100))
+                    lo_s = f"{lo:,.0f}" if lo >= 10 else f"{lo:.2f}"
+                    hi_s = f"{hi:,.0f}" if hi >= 10 else f"{hi:.2f}"
+                    return (
+                        f'<div style="margin-top:6px;">'
+                        f'<div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.10);overflow:hidden;margin-bottom:3px;">'
+                        f'  <div style="height:100%;width:{fill:.1f}%;background:{color};opacity:0.75;border-radius:4px;"></div>'
+                        f'</div>'
+                        f'<div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:600;color:#64748B;">'
+                        f'  <span>{lo_s}</span><span>{hi_s}</span>'
+                        f'</div>'
+                        f'</div>'
+                    )
+
                 with m1:
+                    lo_t = max(0, t_ord - q_tc); hi_t = t_ord + q_tc
                     st.markdown(f"""
                     <div style="background:#111827;border:1px solid rgba(255,255,255,0.18);border-top:4px solid {T.TEMP};
-                                border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
-                      <div style="font-size:0.85rem;font-weight:850;color:#CBD5E1;letter-spacing:0.05em;text-transform:uppercase;">{t_lab}</div>
-                      <div style="font-size:2.25rem;font-weight:950;color:{T.TEMP};line-height:1.15;margin:4px 0;">
-                        {t_ord:,.0f} <span style="font-size:1.1rem;font-weight:800;">K</span>
+                                border-radius:14px;padding:14px 16px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
+                      <div style="font-size:0.78rem;font-weight:800;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;">{t_lab}</div>
+                      <div style="font-size:2.1rem;font-weight:950;color:{T.TEMP};line-height:1.1;margin:3px 0 0 0;">
+                        {t_ord:,.0f} <span style="font-size:1.0rem;font-weight:700;">K</span>
+                        <span style="font-size:0.82rem;font-weight:600;color:#64748B;margin-left:4px;">{t_ord - 273.15:.0f} °C</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">{t_ord - 273.15:.0f} °C</div>
+                      {_range_bar(lo_t, t_ord, hi_t, T.TEMP)}
                     </div>
                     """, unsafe_allow_html=True)
+
                 with m2:
+                    lo_ms = max(0, ms_t - q_ms); hi_ms = ms_t + q_ms
                     st.markdown(f"""
                     <div style="background:#111827;border:1px solid rgba(255,255,255,0.18);border-top:4px solid {T.MOMENT};
-                                border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
-                      <div style="font-size:0.85rem;font-weight:850;color:#CBD5E1;letter-spacing:0.05em;text-transform:uppercase;">Saturation μ₀Mₛ</div>
-                      <div style="font-size:2.25rem;font-weight:950;color:{T.MOMENT};line-height:1.15;margin:4px 0;">
-                        {ms_t:.2f} <span style="font-size:1.1rem;font-weight:800;">T</span>
+                                border-radius:14px;padding:14px 16px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
+                      <div style="font-size:0.78rem;font-weight:800;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;">Saturation μ₀Mₛ</div>
+                      <div style="font-size:2.1rem;font-weight:950;color:{T.MOMENT};line-height:1.1;margin:3px 0 0 0;">
+                        {ms_t:.2f} <span style="font-size:1.0rem;font-weight:700;">T</span>
+                        <span style="font-size:0.82rem;font-weight:600;color:#64748B;margin-left:4px;">SP ≤ {sp_ms_t:.2f} T</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">SP Ceiling: {sp_ms_t:.2f} T</div>
+                      {_range_bar(lo_ms, ms_t, hi_ms, T.MOMENT)}
                     </div>
                     """, unsafe_allow_html=True)
+
                 with m3:
+                    q_hc = hc_u if hc_u > 0 else max(5.0, hc_ka_m * 0.12)
+                    lo_hc = max(0, hc_ka_m - q_hc); hi_hc = hc_ka_m + q_hc
                     st.markdown(f"""
                     <div style="background:#111827;border:1px solid rgba(255,255,255,0.18);border-top:4px solid {T.HARD};
-                                border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
-                      <div style="font-size:0.85rem;font-weight:850;color:#CBD5E1;letter-spacing:0.05em;text-transform:uppercase;">Coercivity Hᴄ</div>
-                      <div style="font-size:2.25rem;font-weight:950;color:{T.HARD};line-height:1.15;margin:4px 0;">
-                        {hc_ka_m:,.0f} <span style="font-size:1.1rem;font-weight:800;">kA/m</span>
+                                border-radius:14px;padding:14px 16px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
+                      <div style="font-size:0.78rem;font-weight:800;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;">Coercivity Hᴄ</div>
+                      <div style="font-size:2.1rem;font-weight:950;color:{T.HARD};line-height:1.1;margin:3px 0 0 0;">
+                        {hc_ka_m:,.0f} <span style="font-size:1.0rem;font-weight:700;">kA/m</span>
+                        <span style="font-size:0.82rem;font-weight:600;color:#64748B;margin-left:4px;">{hc_kOe:.1f} kOe</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">{hc_kOe:.1f} kOe</div>
+                      {_range_bar(lo_hc, hc_ka_m, hi_hc, T.HARD)}
                     </div>
                     """, unsafe_allow_html=True)
+
                 with m4:
+                    q_bh = bh_u if bh_u > 0 else max(5.0, bh_max_kj * 0.12)
+                    lo_bh = max(0, bh_max_kj - q_bh); hi_bh = bh_max_kj + q_bh
                     st.markdown(f"""
                     <div style="background:#111827;border:1px solid rgba(255,255,255,0.18);border-top:4px solid {T.ACCENT};
-                                border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
+                                border-radius:14px;padding:14px 16px;box-shadow:0 8px 24px -4px rgba(0,0,0,0.5);">
                       <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:0.85rem;font-weight:850;color:#CBD5E1;letter-spacing:0.05em;text-transform:uppercase;">Energy Product</span>
-                        <span style="background:rgba(255,107,0,0.22);border:1.5px solid #FF8C00;color:#FFA000;padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:900;">{hard_label}</span>
+                        <span style="font-size:0.78rem;font-weight:800;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;">Energy Product</span>
+                        <span style="background:rgba(255,107,0,0.22);border:1.5px solid #FF8C00;color:#FFA000;padding:1px 7px;border-radius:6px;font-size:0.72rem;font-weight:900;">{hard_label}</span>
                       </div>
-                      <div style="font-size:2.25rem;font-weight:950;color:{T.ACCENT};line-height:1.15;margin:4px 0;">
-                        {bh_max_kj:.0f} <span style="font-size:1.1rem;font-weight:800;">kJ/m³</span>
+                      <div style="font-size:2.1rem;font-weight:950;color:{T.ACCENT};line-height:1.1;margin:3px 0 0 0;">
+                        {bh_max_kj:.0f} <span style="font-size:1.0rem;font-weight:700;">kJ/m³</span>
+                        <span style="font-size:0.82rem;font-weight:600;color:#64748B;margin-left:4px;">{bh_max_kj / 7.96:.1f} MGOe</span>
                       </div>
-                      <div style="font-size:0.92rem;font-weight:700;color:#94A3B8;">{bh_max_kj / 7.96:.1f} MGOe</div>
+                      {_range_bar(lo_bh, bh_max_kj, hi_bh, T.ACCENT)}
                     </div>
                     """, unsafe_allow_html=True)
 
