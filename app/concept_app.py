@@ -603,35 +603,9 @@ with tab_screener:
         st.markdown('<div style="border-bottom:1.5px solid #E2E8F0;margin-bottom:1.0rem;"></div>',
                     unsafe_allow_html=True)
 
-        # 0. How many elements the composition should have
-        n_now = len(st.session_state.comp_elements)
 
-        def on_n_elements_change():
-            want = int(st.session_state.n_elements)
-            cur = list(st.session_state.comp_elements)
-            if want < len(cur):
-                cur = cur[:want]
-            else:
-                for el in ELEMENT_POOL:
-                    if len(cur) >= want:
-                        break
-                    if el not in cur:
-                        cur.append(el)
-            st.session_state.comp_elements = cur
-            st.session_state.comp_amounts = {
-                el: st.session_state.comp_amounts.get(el, 1.0) for el in cur}
-            for k in list(st.session_state.keys()):
-                if k.startswith("el_sel_") or k.startswith("amt_slot_"):
-                    del st.session_state[k]
-            st.session_state._active_arch = "Custom Formulation"
 
-        if "n_elements" not in st.session_state:
-            st.session_state.n_elements = max(1, min(6, n_now if n_now else 2))
-        st.number_input("Number of elements", min_value=1, max_value=6, step=1,
-                        key="n_elements", on_change=on_n_elements_change,
-                        help="Adds or removes composition slots.")
-
-        # 1. Material Archetype Preset Selector
+        # 1. Material Archetype Preset Selector (no label shown, just the dropdown)
         arch_keys = list(D.ARCHETYPES.keys())
         arch_opts = ["Custom Formulation"] + arch_keys
         cur_v = st.session_state.get("_arch_version", 0)
@@ -667,10 +641,41 @@ with tab_screener:
             index=active_idx,
             key=f"arch_select_{cur_v}",
             on_change=on_arch_change,
+            label_visibility="collapsed",
             format_func=lambda k: f"{D.ARCHETYPES[k]['name']} — {D.ARCHETYPES[k]['title']}" if k in D.ARCHETYPES else "Custom Formulation"
         )
 
-        st.markdown('<div style="margin-bottom:0.85rem;"></div>', unsafe_allow_html=True)
+        # Number of elements — only shown for Custom Formulation
+        if chosen_arch == "Custom Formulation":
+            st.markdown('\u200b', unsafe_allow_html=True)
+
+            def on_n_elements_change():
+                want = int(st.session_state.n_elements)
+                cur = list(st.session_state.comp_elements)
+                if want < len(cur):
+                    cur = cur[:want]
+                else:
+                    for el in ELEMENT_POOL:
+                        if len(cur) >= want:
+                            break
+                        if el not in cur:
+                            cur.append(el)
+                st.session_state.comp_elements = cur
+                st.session_state.comp_amounts = {
+                    el: st.session_state.comp_amounts.get(el, 1.0) for el in cur}
+                for k in list(st.session_state.keys()):
+                    if k.startswith("el_sel_") or k.startswith("amt_slot_"):
+                        del st.session_state[k]
+                st.session_state._active_arch = "Custom Formulation"
+
+            n_now = len(st.session_state.comp_elements)
+            if "n_elements" not in st.session_state:
+                st.session_state.n_elements = max(1, min(6, n_now if n_now else 2))
+            st.number_input("Number of elements", min_value=1, max_value=6, step=1,
+                            key="n_elements", on_change=on_n_elements_change,
+                            help="Adds or removes composition slots.")
+
+        st.markdown('\u200b', unsafe_allow_html=True)
 
         # 2. One dropdown per element, with its composition value beside it
         elem_options = list(D.SUBSTITUENTS)
@@ -741,11 +746,13 @@ with tab_screener:
 
                 c_el, c_amt = st.columns([1.15, 1], gap="small")
                 c_el.selectbox(f"Element {i + 1}", opts, key=f"el_sel_{i}",
-                               on_change=on_slot_element_change, args=(i,))
-                c_amt.number_input(f"Amount ({at_pct:.1f}%)",
+                               on_change=on_slot_element_change, args=(i,),
+                               label_visibility="collapsed")
+                c_amt.number_input(f"Amount {i + 1} ({at_pct:.1f}%)",
                                    min_value=0.01, max_value=999.0, step=0.1,
                                    format="%.2f", key=f"amt_slot_{i}",
-                                   on_change=on_slot_amount_change, args=(i,))
+                                   on_change=on_slot_amount_change, args=(i,),
+                                   label_visibility="collapsed")
 
             formula = D.build_formula([(e, st.session_state.comp_amounts.get(e, 0))
                                        for e in elements_now])
