@@ -555,9 +555,9 @@ ELEMENT_POOL = ["Fe", "Co", "Ni", "Mn", "Al", "B", "Nd", "Sm", "Ti", "Cr"]
 def reset_formulation():
     """Clear every formulation input back to a fresh custom composition."""
     for k in list(st.session_state.keys()):
-        if (k.startswith("amt_") or k.startswith("input_sg_")
-                or k.startswith("arch_select_")
-                or k in ("comp_elements_multiselect", "input_csys")):
+        if (k.startswith("amt_slot_") or k.startswith("el_sel_")
+                or k.startswith("input_sg_") or k.startswith("arch_select_")
+                or k in ("input_csys",)):
             del st.session_state[k]
     st.session_state.comp_elements = list(DEFAULT_ELEMENTS)
     st.session_state.comp_amounts = {el: 1.0 for el in DEFAULT_ELEMENTS}
@@ -620,7 +620,9 @@ with tab_screener:
             st.session_state.comp_elements = cur
             st.session_state.comp_amounts = {
                 el: st.session_state.comp_amounts.get(el, 1.0) for el in cur}
-            st.session_state.comp_elements_multiselect = cur
+            for k in list(st.session_state.keys()):
+                if k.startswith("el_sel_") or k.startswith("amt_slot_"):
+                    del st.session_state[k]
             st.session_state._active_arch = "Custom Formulation"
 
         if "n_elements" not in st.session_state:
@@ -645,10 +647,10 @@ with tab_screener:
                 st.session_state.comp_cs = arch_meta["crystal_system"]
                 st.session_state.comp_sg = arch_meta["space_group"]
                 st.session_state.input_csys = arch_meta["crystal_system"]
-                st.session_state.comp_elements_multiselect = list(arch_meta["amounts"].keys())
                 st.session_state.n_elements = max(1, min(6, len(arch_meta["amounts"])))
                 for k in list(st.session_state.keys()):
-                    if k.startswith("amt_") or k.startswith("input_sg_"):
+                    if (k.startswith("amt_slot_") or k.startswith("el_sel_")
+                            or k.startswith("input_sg_")):
                         del st.session_state[k]
             else:
                 st.session_state.comp_cs = "Not specified"
@@ -670,41 +672,46 @@ with tab_screener:
 
         st.markdown('<div style="margin-bottom:0.85rem;"></div>', unsafe_allow_html=True)
 
-        # 2. Constituent Elements Selector
+        # 2. One dropdown per element, with its composition value beside it
         elem_options = list(D.SUBSTITUENTS)
         for el in st.session_state.comp_elements:
             if el not in elem_options:
                 elem_options.append(el)
 
-        def on_elements_change():
-            sel_els = st.session_state.comp_elements_multiselect
-            new_amounts = {}
-            for el in sel_els:
-                new_amounts[el] = st.session_state.comp_amounts.get(el, 1.0)
-            st.session_state.comp_elements = sel_els
-            st.session_state.comp_amounts = new_amounts
-            if sel_els:
-                st.session_state.n_elements = max(1, min(6, len(sel_els)))
+        def _mark_custom():
             st.session_state._active_arch = "Custom Formulation"
             st.session_state.comp_cs = "Not specified"
             st.session_state.comp_sg = 0
             st.session_state.input_csys = "Not specified"
-            st.session_state._arch_version = st.session_state.get("_arch_version", 0) + 1
             for k in list(st.session_state.keys()):
-                if k.startswith("amt_") or k.startswith("input_sg_"):
+                if k.startswith("input_sg_"):
                     del st.session_state[k]
+            st.session_state._arch_version = st.session_state.get("_arch_version", 0) + 1
 
-        if "comp_elements_multiselect" not in st.session_state:
-            st.session_state.comp_elements_multiselect = st.session_state.comp_elements
+        def on_slot_element_change(idx):
+            new_el = st.session_state.get(f"el_sel_{idx}")
+            cur = list(st.session_state.comp_elements)
+            if idx >= len(cur) or new_el == cur[idx]:
+                return
+            # carry the slot's amount across to the newly chosen element
+            amt = st.session_state.comp_amounts.pop(cur[idx], 1.0)
+            cur[idx] = new_el
+            st.session_state.comp_elements = cur
+            st.session_state.comp_amounts[new_el] = amt
+            _mark_custom()
 
-        st.multiselect(
-            "Constituent Elements",
-            options=elem_options,
-            key="comp_elements_multiselect",
-            on_change=on_elements_change
-        )
+        def on_slot_amount_change(idx):
+            cur = st.session_state.comp_elements
+            if idx < len(cur):
+                st.session_state.comp_amounts[cur[idx]] = float(
+                    st.session_state.get(f"amt_slot_{idx}", 1.0))
+                _mark_custom()
 
-        # 3. Stoichiometry Inputs
+        st.markdown(
+            '<div style="font-size:1.0rem;font-weight:800;color:#1E293B;'
+            'margin-bottom:0.25rem;">Constituent Elements</div>',
+            unsafe_allow_html=True)
+
         if not st.session_state.comp_elements:
             st.warning("Please select at least one constituent element.")
             formula = ""
@@ -712,45 +719,39 @@ with tab_screener:
             amounts = {}
             perr = "No elements selected."
         else:
-            tot_amt = sum(st.session_state.comp_amounts.get(el, 0.0) for el in st.session_state.comp_elements) or 1.0
-            formula = D.build_formula([(el, st.session_state.comp_amounts.get(el, 0)) for el in st.session_state.comp_elements])
+            elements_now = list(st.session_state.comp_elements)
+            tot_amt = sum(st.session_state.comp_amounts.get(e, 0.0)
+                          for e in elements_now) or 1.0
+
+            for i, el in enumerate(elements_now):
+                # an element already used in another slot is not offered here,
+                # which keeps the composition dict single-valued per element
+                taken = {e for j, e in enumerate(elements_now) if j != i}
+                opts = [o for o in elem_options if o not in taken]
+                if el not in opts:
+                    opts.insert(0, el)
+                if st.session_state.get(f"el_sel_{i}") not in opts:
+                    st.session_state[f"el_sel_{i}"] = el
+                if f"amt_slot_{i}" not in st.session_state:
+                    st.session_state[f"amt_slot_{i}"] = float(
+                        st.session_state.comp_amounts.get(el, 1.0))
+
+                cur_amt = float(st.session_state.comp_amounts.get(el, 1.0))
+                at_pct = (cur_amt / tot_amt) * 100.0 if tot_amt > 0 else 0.0
+
+                c_el, c_amt = st.columns([1.15, 1], gap="small")
+                c_el.selectbox(f"Element {i + 1}", opts, key=f"el_sel_{i}",
+                               on_change=on_slot_element_change, args=(i,))
+                c_amt.number_input(f"Amount ({at_pct:.1f}%)",
+                                   min_value=0.01, max_value=999.0, step=0.1,
+                                   format="%.2f", key=f"amt_slot_{i}",
+                                   on_change=on_slot_amount_change, args=(i,))
+
+            formula = D.build_formula([(e, st.session_state.comp_amounts.get(e, 0))
+                                       for e in elements_now])
             pretty = D.format_composition_subscript(st.session_state.comp_amounts)
             amounts = dict(st.session_state.comp_amounts)
             perr = None if formula else "Empty formulation."
-
-            def on_amt_change(elem):
-                val = st.session_state.get(f"amt_{elem}", 1.0)
-                st.session_state.comp_amounts[elem] = val
-                if st.session_state.get("_active_arch") != "Custom Formulation":
-                    st.session_state._active_arch = "Custom Formulation"
-                    st.session_state.comp_cs = "Not specified"
-                    st.session_state.comp_sg = 0
-                    st.session_state.input_csys = "Not specified"
-                    for k in list(st.session_state.keys()):
-                        if k.startswith("input_sg_"):
-                            del st.session_state[k]
-                st.session_state._arch_version = st.session_state.get("_arch_version", 0) + 1
-
-            n_els = len(st.session_state.comp_elements)
-            chunk_size = 3 if n_els >= 3 else n_els
-
-            for i in range(0, n_els, chunk_size):
-                chunk = st.session_state.comp_elements[i:i + chunk_size]
-                cols = st.columns(len(chunk), gap="small")
-                for c, el in zip(cols, chunk):
-                    cur_amt = float(st.session_state.comp_amounts.get(el, 1.0))
-                    at_pct = (cur_amt / tot_amt) * 100.0 if tot_amt > 0 else 0.0
-                    c.number_input(
-                        f"{el} ({at_pct:.1f}%)",
-                        min_value=0.01,
-                        max_value=999.0,
-                        value=cur_amt,
-                        step=0.1,
-                        format="%.2f",
-                        key=f"amt_{el}",
-                        on_change=on_amt_change,
-                        args=(el,)
-                    )
 
         st.markdown('<div style="margin-bottom:0.85rem;"></div>', unsafe_allow_html=True)
 
@@ -871,13 +872,17 @@ with tab_screener:
                     for el, amt in amounts.items()
                 ])
 
-                cs_txt = csys.title() if csys != "Not specified" else "Unspecified Symmetry"
+                # Only claim a symmetry when one was actually given; an
+                # "Unspecified Symmetry" chip is noise, and it contradicted the
+                # space group DAO reports further down the page.
                 sg_txt = f" · SG {sg}" if sg > 0 else ""
-                sym_badge = (
-                    f'<span style="background:rgba(56,189,248,0.15);border:1.5px solid #38BDF8;'
-                    f'color:#38BDF8;border-radius:10px;padding:0.4rem 0.9rem;font-size:1.0rem;font-weight:900;">'
-                    f'{cs_txt}{sg_txt}</span>'
-                )
+                sym_badge = ""
+                if csys != "Not specified":
+                    sym_badge = (
+                        f'<span style="background:rgba(56,189,248,0.15);border:1.5px solid #38BDF8;'
+                        f'color:#38BDF8;border-radius:10px;padding:0.4rem 0.9rem;font-size:1.0rem;font-weight:900;">'
+                        f'{csys.title()}{sg_txt}</span>'
+                    )
                 spin_badge = (
                     f'<span style="background:rgba(0,245,155,0.15);border:1.5px solid #00F59B;'
                     f'color:#00F59B;border-radius:10px;padding:0.4rem 0.9rem;font-size:1.0rem;font-weight:900;">'
