@@ -413,6 +413,68 @@ div[data-baseweb="menu"] li:hover {
 [data-testid="stWidgetLabel"] label, [data-testid="stWidgetLabel"] p {
     color: #1E293B !important; font-weight: 800 !important; font-size: 1.0rem !important;
 }
+
+/* ---------------------------------------------------------------------
+   Streamlit swapped its widget DOM from BaseWeb to React Aria, so the
+   data-baseweb hooks above match locally but not on newer builds. ARIA
+   roles and data-testid survive both, so repeat the rules through those.
+   --------------------------------------------------------------------- */
+[data-testid="stTabs"] button[role="tab"] {
+    font-size: 1.35rem !important; font-weight: 900 !important;
+    padding: 0.85rem 1.6rem !important; color: #64748B !important;
+}
+[data-testid="stTabs"] button[role="tab"] p {
+    font-size: 1.35rem !important; font-weight: 900 !important;
+}
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"],
+[data-testid="stTabs"] button[role="tab"][data-selected] {
+    color: #0F172A !important; background: rgba(255,107,0,0.10);
+    border-bottom: 4px solid #FF6B00 !important;
+}
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p { color: #0F172A !important; }
+
+/* the control itself must stay light, or a dark theme container swallows
+   the dark option text */
+[data-testid="stSelectbox"] > div > div,
+[data-testid="stMultiSelect"] > div > div {
+    background-color: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+}
+[data-testid="stSelectbox"] input[role="combobox"],
+[data-testid="stMultiSelect"] input {
+    color: #0F172A !important; font-weight: 700 !important;
+}
+[data-testid="stSelectbox"] input::placeholder,
+[data-testid="stMultiSelect"] input::placeholder {
+    color: #64748B !important; opacity: 1 !important;
+}
+[role="listbox"] { background: #FFFFFF !important; }
+[role="option"] {
+    color: #0F172A !important; background: #FFFFFF !important;
+    font-size: 1.02rem !important; font-weight: 700 !important;
+}
+[role="option"]:hover, [role="option"][aria-selected="true"], [role="option"][data-focused] {
+    background: #FFE8D6 !important; color: #0F172A !important;
+}
+
+/* Secondary buttons (Reset) inherit the dark theme and end up dark-on-dark.
+   testid spelling changed between Streamlit releases, so cover both. */
+button[kind="secondary"],
+[data-testid="baseButton-secondary"],
+[data-testid="stBaseButton-secondary"] {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    border: 1.5px solid #CBD5E1 !important;
+    font-weight: 800 !important;
+}
+button[kind="secondary"]:hover,
+[data-testid="baseButton-secondary"]:hover,
+[data-testid="stBaseButton-secondary"]:hover {
+    border-color: #FF6B00 !important; color: #FF6B00 !important;
+}
+button[kind="secondary"] p,
+[data-testid="baseButton-secondary"] p,
+[data-testid="stBaseButton-secondary"] p { color: inherit !important; font-weight: 800 !important; }
 </style>
 """, unsafe_allow_html=True)
 gap_stats = get_reality_gap_dataset_stats()
@@ -484,14 +546,38 @@ tab_screener, tab_concept = st.tabs([
 # =========================================================================
 # TAB 1: FORWARD SCREENER & PHYSICS BOUNDS
 # =========================================================================
+# Starting point for a fresh custom formulation, and the pool the element-count
+# stepper draws from when the user asks for more slots.
+DEFAULT_ELEMENTS = ["Fe", "Co"]
+ELEMENT_POOL = ["Fe", "Co", "Ni", "Mn", "Al", "B", "Nd", "Sm", "Ti", "Cr"]
+
+
+def reset_formulation():
+    """Clear every formulation input back to a fresh custom composition."""
+    for k in list(st.session_state.keys()):
+        if (k.startswith("amt_") or k.startswith("input_sg_")
+                or k.startswith("arch_select_")
+                or k in ("comp_elements_multiselect", "input_csys")):
+            del st.session_state[k]
+    st.session_state.comp_elements = list(DEFAULT_ELEMENTS)
+    st.session_state.comp_amounts = {el: 1.0 for el in DEFAULT_ELEMENTS}
+    st.session_state.comp_cs = "Not specified"
+    st.session_state.comp_sg = 0
+    st.session_state._active_arch = "Custom Formulation"
+    # Set the stepper rather than deleting its key: Streamlit keeps widget state
+    # in its own store, so a deleted key does not reliably fall back to `value`.
+    st.session_state.n_elements = len(DEFAULT_ELEMENTS)
+    st.session_state._arch_version = st.session_state.get("_arch_version", 0) + 1
+
+
 with tab_screener:
     # Open on a blank custom formulation so the user enters their own elements
     # and stoichiometry; the archetypes stay one dropdown away. An empty element
     # list is handled downstream by the "select at least one element" guard.
     if "comp_elements" not in st.session_state:
-        st.session_state.comp_elements = []
+        st.session_state.comp_elements = list(DEFAULT_ELEMENTS)
     if "comp_amounts" not in st.session_state:
-        st.session_state.comp_amounts = {}
+        st.session_state.comp_amounts = {el: 1.0 for el in DEFAULT_ELEMENTS}
     if "comp_cs" not in st.session_state:
         st.session_state.comp_cs = "Not specified"
     if "comp_sg" not in st.session_state:
@@ -504,11 +590,44 @@ with tab_screener:
     col_input, col_display = st.columns([1.14, 2.16], gap="large")
 
     with col_input:
-        st.markdown("""
-        <div style="margin-bottom:1.1rem;padding-bottom:0.65rem;border-bottom:1.5px solid #E2E8F0;">
-          <div style="font-size:1.25rem;font-weight:950;color:#0F172A;letter-spacing:-0.02em;">Compound Formulation</div>
-        </div>
-        """, unsafe_allow_html=True)
+        head_l, head_r = st.columns([2.9, 1])
+        with head_l:
+            st.markdown("""
+            <div style="font-size:1.25rem;font-weight:950;color:#0F172A;letter-spacing:-0.02em;
+                        padding-top:0.15rem;">Compound Formulation</div>
+            """, unsafe_allow_html=True)
+        with head_r:
+            st.button("Reset", on_click=reset_formulation, width="stretch",
+                      key="btn_reset_formulation",
+                      help="Clear every input and start a fresh composition.")
+        st.markdown('<div style="border-bottom:1.5px solid #E2E8F0;margin-bottom:1.0rem;"></div>',
+                    unsafe_allow_html=True)
+
+        # 0. How many elements the composition should have
+        n_now = len(st.session_state.comp_elements)
+
+        def on_n_elements_change():
+            want = int(st.session_state.n_elements)
+            cur = list(st.session_state.comp_elements)
+            if want < len(cur):
+                cur = cur[:want]
+            else:
+                for el in ELEMENT_POOL:
+                    if len(cur) >= want:
+                        break
+                    if el not in cur:
+                        cur.append(el)
+            st.session_state.comp_elements = cur
+            st.session_state.comp_amounts = {
+                el: st.session_state.comp_amounts.get(el, 1.0) for el in cur}
+            st.session_state.comp_elements_multiselect = cur
+            st.session_state._active_arch = "Custom Formulation"
+
+        if "n_elements" not in st.session_state:
+            st.session_state.n_elements = max(1, min(6, n_now if n_now else 2))
+        st.number_input("Number of elements", min_value=1, max_value=6, step=1,
+                        key="n_elements", on_change=on_n_elements_change,
+                        help="Adds or removes composition slots.")
 
         # 1. Material Archetype Preset Selector
         arch_keys = list(D.ARCHETYPES.keys())
@@ -527,6 +646,7 @@ with tab_screener:
                 st.session_state.comp_sg = arch_meta["space_group"]
                 st.session_state.input_csys = arch_meta["crystal_system"]
                 st.session_state.comp_elements_multiselect = list(arch_meta["amounts"].keys())
+                st.session_state.n_elements = max(1, min(6, len(arch_meta["amounts"])))
                 for k in list(st.session_state.keys()):
                     if k.startswith("amt_") or k.startswith("input_sg_"):
                         del st.session_state[k]
@@ -563,6 +683,8 @@ with tab_screener:
                 new_amounts[el] = st.session_state.comp_amounts.get(el, 1.0)
             st.session_state.comp_elements = sel_els
             st.session_state.comp_amounts = new_amounts
+            if sel_els:
+                st.session_state.n_elements = max(1, min(6, len(sel_els)))
             st.session_state._active_arch = "Custom Formulation"
             st.session_state.comp_cs = "Not specified"
             st.session_state.comp_sg = 0

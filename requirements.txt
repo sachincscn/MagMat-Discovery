@@ -1,5 +1,8 @@
 # Core Framework & Visualization
-streamlit>=1.35.0
+# Pinned: Streamlit changed its widget DOM (BaseWeb -> React Aria) after this
+# release, which silently breaks the app's custom CSS on Streamlit Cloud and
+# makes the hosted layout diverge from local. Re-test the UI before bumping.
+streamlit==1.54.0
 plotly>=5.18.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
